@@ -1,4 +1,4 @@
-{include file='admin/tabler_header.tpl'}
+{include file='admin/header.tpl'}
 
 <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/@tabler/core@latest/dist/libs/tinymce/skins/ui/oxide/skin.min.css">
 <script src="//cdn.jsdelivr.net/npm/@tabler/core@latest/dist/libs/tinymce/tinymce.min.js"></script>
@@ -36,20 +36,19 @@
                         </form>
                     </div>
                 </div>
-            </div>              
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    // @formatter:off
     document.addEventListener("DOMContentLoaded", function () {
         let options = {
             selector: '#tinymce',
             height: 300,
             menubar: false,
             statusbar: false,
-            plugins: 
+            plugins:
               'advlist autolink lists link image charmap print preview anchor ' +
               'searchreplace visualblocks code fullscreen ' +
               'insertdatetime media table paste code help wordcount',
@@ -65,7 +64,6 @@
         }
         tinyMCE.init(options);
     })
-    // @formatter:on
 
     $("#save-ann").click(function() {
         $.ajax({
@@ -76,7 +74,7 @@
                 content: tinyMCE.activeEditor.getContent(),
             },
             success: function(data) {
-                if (data.ret == 1) {
+                if (data.ret === 1) {
                     $('#success-message').text(data.msg);
                     $('#success-dialog').modal('show');
                     window.setTimeout("location.href=top.document.referrer", {$config['jump_delay']});
@@ -89,4 +87,4 @@
     });
 </script>
 
-{include file='admin/tabler_footer.tpl'}
+{include file='admin/footer.tpl'}

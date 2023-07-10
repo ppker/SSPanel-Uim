@@ -1,4 +1,4 @@
-{include file='admin/tabler_header.tpl'}
+{include file='admin/header.tpl'}
 
 <div class="page-wrapper">
     <div class="container-xl">
@@ -34,6 +34,9 @@
                             <a href="#email" class="nav-link active" data-bs-toggle="tab">邮件设置</a>
                         </li>
                         <li class="nav-item">
+                            <a href="#limit" class="nav-link" data-bs-toggle="tab">发送限制</a>
+                        </li>
+                        <li class="nav-item">
                             <a href="#smtp" class="nav-link" data-bs-toggle="tab">SMTP</a>
                         </li>
                         <li class="nav-item">
@@ -57,13 +60,13 @@
                                 <div class="form-group mb-3 row">
                                     <label class="form-label col-3 col-form-label">邮件服务提供商</label>
                                     <div class="col">
-                                        <select id="mail_driver" class="col form-select" value="{$settings['mail_driver']}">
-                                            <option value="none" {if $settings['mail_driver'] == "none"}selected{/if}>none</option>
-                                            <option value="smtp" {if $settings['mail_driver'] == "smtp"}selected{/if}>smtp</option>
-                                            <option value="sendgrid" {if $settings['mail_driver'] == "sendgrid"}selected{/if}>sendgrid</option>
-                                            <option value="mailgun" {if $settings['mail_driver'] == "mailgun"}selected{/if}>mailgun</option>
-                                            <option value="postal" {if $settings['mail_driver'] == "postal"}selected{/if}>postal</option>
-                                            <option value="ses" {if $settings['mail_driver'] == "ses"}selected{/if}>ses</option>
+                                        <select id="email_driver" class="col form-select" value="{$settings['email_driver']}">
+                                            <option value="none" {if $settings['email_driver'] === "none"}selected{/if}>none</option>
+                                            <option value="smtp" {if $settings['email_driver'] === "smtp"}selected{/if}>smtp</option>
+                                            <option value="sendgrid" {if $settings['email_driver'] === "sendgrid"}selected{/if}>sendgrid</option>
+                                            <option value="mailgun" {if $settings['email_driver'] === "mailgun"}selected{/if}>mailgun</option>
+                                            <option value="postal" {if $settings['email_driver'] === "postal"}selected{/if}>postal</option>
+                                            <option value="ses" {if $settings['email_driver'] === "ses"}selected{/if}>ses</option>
                                         </select>
                                     </div>
                                 </div>
@@ -74,6 +77,38 @@
                                         <div class="col">
                                             <button id="test-email" class="btn btn-primary">发送测试邮件</button>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="limit">
+                            <div class="card-body">
+                                <div class="form-group mb-3 row">
+                                    <label class="form-label col-3 col-form-label">邮箱验证码有效期（秒）</label>
+                                    <div class="col">
+                                        <input id="email_verify_code_ttl" type="text" class="form-control"
+                                               value="{$settings['email_verify_code_ttl']}">
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3 row">
+                                    <label class="form-label col-3 col-form-label">邮箱重设密码链接有效期（秒）</label>
+                                    <div class="col">
+                                        <input id="email_password_reset_ttl" type="text" class="form-control"
+                                               value="{$settings['email_password_reset_ttl']}">
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3 row">
+                                    <label class="form-label col-3 col-form-label">单个IP每小时可请求的发信次数</label>
+                                    <div class="col">
+                                        <input id="email_request_ip_limit" type="text" class="form-control"
+                                               value="{$settings['email_request_ip_limit']}">
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3 row">
+                                    <label class="form-label col-3 col-form-label">单个邮箱地址每小时可请求的发信次数</label>
+                                    <div class="col">
+                                        <input id="email_request_address_limit" type="text" class="form-control"
+                                               value="{$settings['email_request_address_limit']}">
                                     </div>
                                 </div>
                             </div>
@@ -93,32 +128,21 @@
                                     </div>
                                 </div>
                                 <div class="form-group mb-3 row">
-                                    <label class="form-label col-3 col-form-label">SMTP 用户名</label>
-                                    <div class="col">
-                                        <input id="smtp_username" type="text" class="form-control" value="{$settings['smtp_username']}">
-                                    </div>
-                                </div>
-                                <div class="form-group mb-3 row">
                                     <label class="form-label col-3 col-form-label">SMTP 密码</label>
                                     <div class="col">
                                         <input id="smtp_password" type="text" class="form-control" value="{$settings['smtp_password']}">
                                     </div>
                                 </div>
                                 <div class="form-group mb-3 row">
-                                    <label class="form-label col-3 col-form-label">SMTP 用户名</label>
-                                    <div class="col">
-                                        <input id="smtp_username" type="text" class="form-control" value="{$settings['smtp_username']}">
-                                    </div>
-                                </div>
-                                <div class="form-group mb-3 row">
                                     <label class="form-label col-3 col-form-label">SMTP 端口</label>
                                     <div class="col">
                                         <select id="smtp_port" class="col form-select" value="{$settings['smtp_port']}">
-                                            <option value="465" {if $settings['smtp_port'] == "465"}selected{/if}>465</option>
-                                            <option value="587" {if $settings['smtp_port'] == "587"}selected{/if}>587</option>
-                                            <option value="443" {if $settings['smtp_port'] == "443"}selected{/if}>2525</option>
-                                            <option value="80" {if $settings['smtp_port'] == "80"}selected{/if}>2525</option>
-                                            <option value="25" {if $settings['smtp_port'] == "25"}selected{/if}>25</option>
+                                            <option value="465" {if $settings['smtp_port'] === "465"}selected{/if}>465</option>
+                                            <option value="587" {if $settings['smtp_port'] === "587"}selected{/if}>587</option>
+                                            <option value="443" {if $settings['smtp_port'] === "443"}selected{/if}>443</option>
+                                            <option value="80" {if $settings['smtp_port'] === "80"}selected{/if}>80</option>
+                                            <option value="2525" {if $settings['smtp_port'] === "2525"}selected{/if}>2525</option>
+                                            <option value="25" {if $settings['smtp_port'] === "25"}selected{/if}>25</option>
                                         </select>
                                     </div>
                                 </div>
@@ -138,8 +162,8 @@
                                     <label class="form-label col-3 col-form-label">是否使用 TLS/SSL</label>
                                     <div class="col">
                                     <select id="smtp_ssl" class="col form-select" value="{$settings['smtp_ssl']}">
-                                        <option value="1" {if $settings['smtp_ssl'] == true}selected{/if}>开启</option>
-                                        <option value="0" {if $settings['smtp_ssl'] == false}selected{/if}>关闭</option>
+                                        <option value="1" {if $settings['smtp_ssl']}selected{/if}>开启</option>
+                                        <option value="0" {if $settings['smtp_ssl'] === false}selected{/if}>关闭</option>
                                     </select>
                                     </div>
                                 </div>
@@ -191,6 +215,12 @@
                                     <label class="form-label col-3 col-form-label">Mailgun 发信地址</label>
                                     <div class="col">
                                         <input id="mailgun_sender" type="text" class="form-control" value="{$settings['mailgun_sender']}">
+                                    </div>
+                                </div>
+                                 <div class="form-group mb-3 row">
+                                    <label class="form-label col-3 col-form-label">Mailgun 发信人名称</label>
+                                    <div class="col">
+                                        <input id="mailgun_sender_name" type="text" class="form-control" value="{$settings['mailgun_sender_name']}">
                                     </div>
                                 </div>
                             </div>
@@ -261,7 +291,7 @@
 <script>
     $("#save-setting").click(function() {
         $.ajax({
-            url: '/admin/setting/captcha',
+            url: '/admin/setting/email',
             type: 'POST',
             dataType: "json",
             data: {
@@ -270,7 +300,7 @@
                 {/foreach}
             },
             success: function(data) {
-                if (data.ret == 1) {
+                if (data.ret === 1) {
                     $('#success-message').text(data.msg);
                     $('#success-dialog').modal('show');
                 } else {
@@ -290,7 +320,7 @@
                 recipient: $('#recipient').val(),
             },
             success: function(data) {
-                if (data.ret == 1) {
+                if (data.ret === 1) {
                     $('#success-message').text(data.msg);
                     $('#success-dialog').modal('show');
                 } else {
@@ -302,4 +332,4 @@
     });
 </script>
 
-{include file='admin/tabler_footer.tpl'}
+{include file='admin/footer.tpl'}

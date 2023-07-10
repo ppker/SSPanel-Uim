@@ -1,4 +1,4 @@
-{include file='user/tabler_header.tpl'}
+{include file='user/header.tpl'}
 
 <div class="page-wrapper">
     <div class="container-xl">
@@ -61,9 +61,9 @@
                                                     <p>当前邮箱：<code>{$user->email}</code></p>
                                                     <div class="mb-3">
                                                         <input id="new-email" type="email" class="form-control"
-                                                            placeholder="新邮箱" {if $config['enable_change_email'] == false}disabled=""{/if}>
+                                                            placeholder="新邮箱" {if $config['enable_change_email'] === false}disabled=""{/if}>
                                                     </div>
-                                                    {if $config['enable_email_verify'] == true && $config['enable_change_email'] == true}
+                                                    {if $public_setting['reg_email_verify'] && $config['enable_change_email']}
                                                     <div class="mb-3">
                                                         <input id="email-code" type="text" class="form-control"
                                                             placeholder="验证码">
@@ -72,11 +72,11 @@
                                                 </div>
                                                 <div class="card-footer">
                                                     <div class="d-flex">
-                                                        {if $config['enable_email_verify'] == true && $config['enable_change_email'] == true}
+                                                        {if $public_setting['reg_email_verify'] && $config['enable_change_email']}
                                                         <a id="email-verify" class="btn btn-link">获取验证码</a>
                                                         <button id="modify-email"
                                                             class="btn btn-primary ms-auto">修改</button>
-                                                        {elseif $config['enable_change_email'] == true}
+                                                        {elseif $config['enable_change_email']}
                                                         <button id="modify-email"
                                                             class="btn btn-primary ms-auto">修改</button>
                                                         {else}
@@ -93,21 +93,21 @@
                                                     <h3 class="card-title">联系方式</h3>
                                                     <div class="mb-3">
                                                         <select id="imtype" class="form-select">
-                                                            <option value="1" {if $user->im_type == '1'}selected{/if}>
+                                                            <option value="1" {if $user->im_type === 1}selected{/if}>
                                                                 WeChat</option>
-                                                            <option value="2" {if $user->im_type == '2'}selected{/if}>
+                                                            <option value="2" {if $user->im_type === 2}selected{/if}>
                                                                 QQ</option>
-                                                            <option value="3" {if $user->im_type == '3'}selected{/if}>
+                                                            <option value="3" {if $user->im_type === 3}selected{/if}>
                                                                 Facebook</option>
-                                                            <option value="4" {if $user->im_type == '4'}selected{/if}>
+                                                            <option value="4" {if $user->im_type === 4}selected{/if}>
                                                                 Telegram</option>
-                                                            <option value="5" {if $user->im_type == '5'}selected{/if}>
+                                                            <option value="5" {if $user->im_type === 5}selected{/if}>
                                                                 Discord</option>
                                                         </select>
                                                     </div>
                                                     <div class="mb-3">
                                                         <input id="imvalue" type="text" class="form-control" 
-                                                            {if $user->im_type == '4'} disabled="" {/if}
+                                                            {if $user->im_type === 4} disabled="" {/if}
                                                             value="{$user->im_value}" placeholder="社交账户">
                                                     </div>
                                                 </div>
@@ -135,9 +135,9 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        {if $config['enable_telegram'] == true}
+                                        {if $config['enable_telegram']}
                                         <div class="col-sm-12 col-md-6">
-                                            {if $user->telegram_id != 0}
+                                            {if $user->telegram_id !== 0}
                                             <div class="card">
                                                 <div class="card-body">
                                                     <h3 class="card-title">解绑 Telegram</h3>
@@ -151,8 +151,10 @@
                                                 </div>
                                                 <div class="card-footer">
                                                     <div class="d-flex">
-                                                        <a href="/user/telegram_reset"
-                                                            class="btn btn-red ms-auto">解绑</a>
+                                                       <button id="unbind-telegram-btn" 
+                                                            class="btn btn-red ms-auto">
+                                                            解绑
+                                                       </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -221,7 +223,7 @@
                                                                 <select id="ga-enable" class="form-select">
                                                                     <option value="0">不使用</option>
                                                                     <option value="1"
-                                                                        {if $user->ga_enable == '1'}selected{/if}>
+                                                                        {if $user->ga_enable === '1'}selected{/if}>
                                                                         使用两步认证登录
                                                                     </option>
                                                                 </select>
@@ -291,7 +293,7 @@
                                                         <select id="user-method" class="form-select">
                                                             {foreach $methods as $method}
                                                             <option value="{$method}"
-                                                                {if $user->method == $method}selected{/if}
+                                                                {if $user->method === $method}selected{/if}
                                                             >{$method}
                                                             </option>
                                                             {/foreach}
@@ -322,20 +324,6 @@
                                         <div class="col-sm-12 col-md-6">
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <h3 class="card-title">更换连接端口</h3>
-                                                    <p>随机分配一个连接端口，这将用于 Shadowsocks 客户端</p>
-                                                    <p>当前端口是：<code>{$user->port}</code></p>
-                                                </div>
-                                                <div class="card-footer">
-                                                    <div class="d-flex">
-                                                        <a id="reset-client-port" class="btn btn-red ms-auto">更换</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-12 col-md-6">
-                                            <div class="card">
-                                                <div class="card-body">
                                                     <h3 class="card-title">重置连接密码</h3>
                                                     <p>重置连接密码与UUID ，重置后需更新订阅，才能继续使用</p>
                                                     <p>当前连接密码：<code>{$user->passwd}</code></p>
@@ -359,15 +347,14 @@
                                                     <h3 class="card-title">每日用量推送</h3>
                                                     <div class="mb-3">
                                                         <select id="daily-report" class="form-select">
-                                                            <option value="0"
-                                                                {if $user->sendDailyMail == '0'}selected{/if}>不发送
+                                                            <option value="0" {if $user->daily_mail_enable === 0}selected{/if}>
+                                                                不发送
                                                             </option>
-                                                            <option value="1"
-                                                                {if $user->sendDailyMail == '1'}selected{/if}>邮件接收
+                                                            <option value="1" {if $user->daily_mail_enable === 1}selected{/if}>
+                                                                邮件接收
                                                             </option>
-                                                            <option value="2"
-                                                                {if $user->sendDailyMail == '2'}selected{/if}>Telegram
-                                                                Bot 接收
+                                                            <option value="2" {if $user->daily_mail_enable === 2}selected{/if}>
+                                                                Telegram Bot 接收
                                                             </option>
                                                         </select>
                                                     </div>
@@ -388,7 +375,7 @@
                                                         <select id="user-theme" class="form-select">
                                                             {foreach $themes as $theme}
                                                                 <option value="{$theme}"
-                                                                    {if $user->theme == $theme}selected{/if}>{$theme}
+                                                                    {if $user->theme === $theme}selected{/if}>{$theme}
                                                                 </option>
                                                             {/foreach}
                                                         </select>
@@ -401,7 +388,7 @@
                                                 </div>
                                             </div>   
                                         </div>
-                                        {if $config['enable_kill'] == true}
+                                        {if $config['enable_kill']}
                                         <div class="col-sm-12 col-md-6">
                                             <div class="card">
                                                 <div class="card-stamp">
@@ -413,7 +400,7 @@
                                                     <h3 class="card-title">删除账户数据</h3>
                                                 </div>    
                                                 <div class="card-footer">
-                                                    <a href="#" class="btn btn-red d-none d-sm-inline-block" data-bs-toggle="modal"
+                                                    <a href="#" class="btn btn-red" data-bs-toggle="modal"
                                                         data-bs-target="#destroy-account">
                                                         <i class="ti ti-trash icon"></i>
                                                         确认删除
@@ -432,7 +419,7 @@
         </div>
     </div>
 
-    {if $config['enable_kill'] == true}
+    {if $config['enable_kill']}
     <div class="modal modal-blur fade" id="destroy-account" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -441,7 +428,7 @@
                 <div class="modal-body text-center py-4">
                     <i class="ti ti-alert-circle icon mb-2 text-danger icon-lg" style="font-size:3.5rem;"></i>
                     <h3>删除确认</h3>
-                    <div class="text-muted">请确认是否真的要删除你的账户，此操作无法撤销，你的所有账户数据将会被从服务器上彻底删除</div>
+                    <div class="text-secondary">请确认是否真的要删除你的账户，此操作无法撤销，你的所有账户数据将会被从服务器上彻底删除</div>
                     <div class="py-3">
                         <form>
                             <input id="confirm-passwd" type="password" class="form-control" placeholder="输入登录密码"
@@ -477,7 +464,7 @@
                 <div class="modal-body text-center py-4">
                     <i class="ti ti-circle-check icon mb-2 text-green icon-lg" style="font-size:3.5rem;"></i>
                     <h3>删除成功</h3>
-                    <p id="success-message" class="text-muted">删除成功</p>
+                    <p id="success-message" class="text-secondary">删除成功</p>
                 </div>
                 <div class="modal-footer">
                     <div class="w-100">
@@ -502,7 +489,7 @@
                 <div class="modal-body text-center py-4">
                     <i class="ti ti-circle-x icon mb-2 text-danger icon-lg" style="font-size:3.5rem;"></i>
                     <h3>删除失败</h3>
-                    <p id="error-message" class="text-muted">删除失败</p>
+                    <p id="error-message" class="text-secondary">删除失败</p>
                 </div>
                 <div class="modal-footer">
                     <div class="w-100">
@@ -532,8 +519,8 @@
 
         var clipboard = new ClipboardJS('.copy');
         clipboard.on('success', function(e) {
-            $('#success-message').text('已复制到剪切板');
-            $('#success-dialog').modal('show');
+            $('#success-noreload-message').text('已复制到剪切板');
+            $('#success-noreload-dialog').modal('show');
         });
 
         $("#modify-email").click(function() {
@@ -542,13 +529,13 @@
                 url: "/user/email",
                 dataType: "json",
                 data: {
-                    {if $config['enable_email_verify'] == true}
+                    {if $public_setting['reg_email_verify']}
                         emailcode: $('#email-code').val(),
                     {/if}
                     newemail: $('#new-email').val()
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                     } else {
@@ -568,7 +555,7 @@
                     email: $('#new-email').val()
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                     } else {
@@ -588,7 +575,7 @@
                     newusername: $('#new-nickname').val()
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                     } else {
@@ -608,7 +595,7 @@
                     method: $('#user-method').val()
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                     } else {
@@ -625,7 +612,7 @@
                 url: "/user/url_reset",
                 dataType: "json",
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                     } else {
@@ -645,7 +632,7 @@
                     theme: $('#user-theme').val()
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                         window.setTimeout("location.reload()", {$config['jump_delay']});
@@ -666,24 +653,7 @@
                     mail: $('#daily-report').val()
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
-                        $('#success-message').text(data.msg);
-                        $('#success-dialog').modal('show');
-                    } else {
-                        $('#fail-message').text(data.msg);
-                        $('#fail-dialog').modal('show');
-                    }
-                }
-            })
-        });
-
-        $("#reset-client-port").click(function() {
-            $.ajax({
-                type: "POST",
-                url: "/user/port",
-                dataType: "json",
-                success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                     } else {
@@ -697,10 +667,10 @@
         $("#reset-passwd").click(function() {
             $.ajax({
                 type: "POST",
-                url: "/user/sspwd",
+                url: "/user/passwd_reset",
                 dataType: "json",
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                     } else {
@@ -722,7 +692,7 @@
                     oldpwd: $('#password').val()
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                     } else {
@@ -743,7 +713,7 @@
                     imvalue: $('#imvalue').val()
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                     } else {
@@ -760,7 +730,7 @@
                 url: "/user/ga_reset",
                 dataType: "json",
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                     } else {
@@ -780,7 +750,7 @@
                     code: $('#2fa-test-code').val()
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                     } else {
@@ -800,7 +770,7 @@
                     enable: $('#ga-enable').val()
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                     } else {
@@ -810,8 +780,27 @@
                 }
             })
         });
-        
-        {if $config['enable_kill'] == true}
+        $("#unbind-telegram-btn").click(function() {
+          $.ajax({
+            type: "POST",
+            url: "/user/telegram_reset",
+            dataType: "json",
+            success: function(data) {
+              if (data.ret === 1) {
+                $('#success-message').text(data.msg);
+                $('#success-dialog').modal('show');
+                setTimeout(function() {
+                  location.reload();
+                }, 1000);
+              } else {
+                $('#fail-message').text(data.msg);
+                $('#fail-dialog').modal('show');
+              }
+            }
+          })
+        });
+
+        {if $config['enable_kill']}
         $("#confirm-destroy").click(function() {
             $.ajax({
                 type: "POST",
@@ -821,7 +810,7 @@
                     passwd: $('#confirm-passwd').val(),
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#destroy-account-success').modal('show');
                     } else {
@@ -834,4 +823,4 @@
         {/if}
     </script>
     
-{include file='user/tabler_footer.tpl'}
+{include file='user/footer.tpl'}

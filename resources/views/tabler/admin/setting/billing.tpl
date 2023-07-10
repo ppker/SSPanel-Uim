@@ -1,4 +1,4 @@
-{include file='admin/tabler_header.tpl'}
+{include file='admin/header.tpl'}
 
 <div class="page-wrapper">
     <div class="container-xl">
@@ -37,19 +37,13 @@
                             <a href="#f2f" class="nav-link" data-bs-toggle="tab">支付宝当面付</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#vmq" class="nav-link" data-bs-toggle="tab">V免签</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#payjs" class="nav-link" data-bs-toggle="tab">PayJS</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#theadpay" class="nav-link" data-bs-toggle="tab">TheadPay</a>
-                        </li>
-                        <li class="nav-item">
                             <a href="#stripe" class="nav-link" data-bs-toggle="tab">Stripe</a>
                         </li>
                         <li class="nav-item">
                             <a href="#epay" class="nav-link" data-bs-toggle="tab">EPay</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#paypal" class="nav-link" data-bs-toggle="tab">PayPal</a>
                         </li>
                     </ul>
                 </div>
@@ -83,13 +77,13 @@
                                     </div>
                                 </div>
                                 <div class="form-group mb-3 row">
-                                    <label class="form-label col-3 col-form-label">公钥</label>
+                                    <label class="form-label col-3 col-form-label">支付宝公钥</label>
                                     <div class="col">
                                         <input id="f2f_pay_public_key" type="text" class="form-control" value="{$settings['f2f_pay_public_key']}">
                                     </div>
                                 </div>
                                 <div class="form-group mb-3 row">
-                                    <label class="form-label col-3 col-form-label">私钥</label>
+                                    <label class="form-label col-3 col-form-label">应用私钥</label>
                                     <div class="col">
                                         <input id="f2f_pay_private_key" type="text" class="form-control" value="{$settings['f2f_pay_private_key']}">
                                     </div>
@@ -102,66 +96,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="tab-pane" id="vmq">
-                            <div class="card-body">
-                                <div class="form-group mb-3 row">
-                                    <label class="form-label col-3 col-form-label">网关地址</label>
-                                    <div class="col">
-                                        <input id="vmq_gateway" type="text" class="form-control" value="{$settings['vmq_gateway']}">
-                                    </div>
-                                </div>
-                                <div class="form-group mb-3 row">
-                                    <label class="form-label col-3 col-form-label">密钥</label>
-                                    <div class="col">
-                                        <input id="vmq_key" type="text" class="form-control" value="{$settings['vmq_key']}">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane" id="payjs">
-                            <div class="card-body">
-                                <div class="form-group mb-3 row">
-                                    <label class="form-label col-3 col-form-label">网关地址</label>
-                                    <div class="col">
-                                        <input id="payjs_url" type="text" class="form-control" value="{$settings['payjs_url']}">
-                                    </div>
-                                </div>
-                                <div class="form-group mb-3 row">
-                                    <label class="form-label col-3 col-form-label">商户ID</label>
-                                    <div class="col">
-                                        <input id="payjs_mchid" type="text" class="form-control" value="{$settings['payjs_mchid']}">
-                                    </div>
-                                </div>
-                                <div class="form-group mb-3 row">
-                                    <label class="form-label col-3 col-form-label">密钥</label>
-                                    <div class="col">
-                                        <input id="payjs_key" type="text" class="form-control" value="{$settings['payjs_key']}">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane" id="theadpay">
-                            <div class="card-body">
-                                <div class="form-group mb-3 row">
-                                    <label class="form-label col-3 col-form-label">网关地址</label>
-                                    <div class="col">
-                                        <input id="theadpay_url" type="text" class="form-control" value="{$settings['theadpay_url']}">
-                                    </div>
-                                </div>
-                                <div class="form-group mb-3 row">
-                                    <label class="form-label col-3 col-form-label">商户ID</label>
-                                    <div class="col">
-                                        <input id="theadpay_mchid" type="text" class="form-control" value="{$settings['theadpay_mchid']}">
-                                    </div>
-                                </div>
-                                <div class="form-group mb-3 row">
-                                    <label class="form-label col-3 col-form-label">密钥</label>
-                                    <div class="col">
-                                        <input id="theadpay_key" type="text" class="form-control" value="{$settings['theadpay_key']}">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         <div class="tab-pane" id="stripe">
                             <div class="card-body">
                                 <div class="form-group mb-3 row">
@@ -169,7 +103,7 @@
                                     <div class="col">
                                         <select id="stripe_card" class="col form-select" value="{$settings['stripe_card']}">
                                             <option value="0">停用</option>
-                                            <option value="1" {if $settings['stripe_card'] === true}selected{/if}>启用</option>
+                                            <option value="1" {if $settings['stripe_card']}selected{/if}>启用</option>
                                         </select>
                                     </div>
                                 </div>
@@ -178,7 +112,7 @@
                                     <div class="col">
                                         <select id="stripe_alipay" class="col form-select" value="{$settings['stripe_alipay']}">
                                             <option value="0">停用</option>
-                                            <option value="1" {if $settings['stripe_alipay'] === true}selected{/if}>启用</option>
+                                            <option value="1" {if $settings['stripe_alipay']}selected{/if}>启用</option>
                                         </select>
                                     </div>
                                 </div>
@@ -187,7 +121,7 @@
                                     <div class="col">
                                         <select id="stripe_wechat" class="col form-select" value="{$settings['stripe_wechat']}">
                                             <option value="0">停用</option>
-                                            <option value="1" {if $settings['stripe_wechat'] === true}selected{/if}>启用</option>
+                                            <option value="1" {if $settings['stripe_wechat']}selected{/if}>启用</option>
                                         </select>
                                     </div>
                                 </div>
@@ -254,7 +188,7 @@
                                     <div class="col">
                                         <select id="epay_alipay" class="col form-select" value="{$settings['epay_alipay']}">
                                             <option value="0">停用</option>
-                                            <option value="1" {if $settings['epay_alipay'] === true}selected{/if}>启用</option>
+                                            <option value="1" {if $settings['epay_alipay']}selected{/if}>启用</option>
                                         </select>
                                     </div>
                                 </div>
@@ -263,7 +197,7 @@
                                     <div class="col">
                                         <select id="epay_wechat" class="col form-select" value="{$settings['epay_wechat']}">
                                             <option value="0">停用</option>
-                                            <option value="1" {if $settings['epay_wechat'] === true}selected{/if}>启用</option>
+                                            <option value="1" {if $settings['epay_wechat']}selected{/if}>启用</option>
                                         </select>
                                     </div>
                                 </div>
@@ -272,7 +206,7 @@
                                     <div class="col">
                                         <select id="epay_qq" class="col form-select" value="{$settings['epay_qq']}">
                                             <option value="0">停用</option>
-                                            <option value="1" {if $settings['epay_qq'] === true}selected{/if}>启用</option>
+                                            <option value="1" {if $settings['epay_qq']}selected{/if}>启用</option>
                                         </select>
                                     </div>
                                 </div>
@@ -281,8 +215,45 @@
                                     <div class="col">
                                         <select id="epay_usdt" class="col form-select" value="{$settings['epay_usdt']}">
                                             <option value="0">停用</option>
-                                            <option value="1" {if $settings['epay_usdt'] === true}selected{/if}>启用</option>
+                                            <option value="1" {if $settings['epay_usdt']}selected{/if}>启用</option>
                                         </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="paypal">
+                            <div class="card-body">
+                                <div class="form-group mb-3 row">
+                                    <label class="form-label col-3 col-form-label">模式</label>
+                                    <div class="col">
+                                        <select id="paypal_mode" class="col form-select" value="{$settings['paypal_mode']}">
+                                            <option value="sandbox">Sandbox</option>
+                                            <option value="live" {if $settings['paypal_mode'] === 'live'}selected{/if}>Live</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3 row">
+                                    <label class="form-label col-3 col-form-label">PayPal客戶ID</label>
+                                    <div class="col">
+                                        <input id="paypal_client_id" type="text" class="form-control" value="{$settings['paypal_client_id']}">
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3 row">
+                                    <label class="form-label col-3 col-form-label">PayPal客戶密钥</label>
+                                    <div class="col">
+                                        <input id="paypal_client_secret" type="text" class="form-control" value="{$settings['paypal_client_secret']}">
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3 row">
+                                    <label class="form-label col-3 col-form-label">PayPal货币</label>
+                                    <div class="col">
+                                        <input id="paypal_currency" type="text" class="form-control" value="{$settings['paypal_currency']}">
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3 row">
+                                    <label class="form-label col-3 col-form-label">PayPal语言</label>
+                                    <div class="col">
+                                        <input id="paypal_locale" type="text" class="form-control" value="{$settings['paypal_locale']}">
                                     </div>
                                 </div>
                             </div>
@@ -309,7 +280,7 @@
                 {/foreach}
             },
             success: function(data) {
-                if (data.ret == 1) {
+                if (data.ret === 1) {
                     $('#success-message').text(data.msg);
                     $('#success-dialog').modal('show');
                 } else {
@@ -321,4 +292,4 @@
     });
 </script>
 
-{include file='admin/tabler_footer.tpl'}
+{include file='admin/footer.tpl'}

@@ -1,7 +1,7 @@
-{include file='admin/tabler_header.tpl'}
+{include file='admin/header.tpl'}
 
-<script src="//cdn.jsdelivr.net/npm/jsoneditor@9.9.2/dist/jsoneditor.min.js"></script>
-<link href="//cdn.jsdelivr.net/npm/jsoneditor@9.9.2/dist/jsoneditor.min.css" rel="stylesheet" type="text/css">
+<script src="//cdn.jsdelivr.net/npm/jsoneditor@latest/dist/jsoneditor.min.js"></script>
+<link href="//cdn.jsdelivr.net/npm/jsoneditor@latest/dist/jsoneditor.min.css" rel="stylesheet" type="text/css">
 
 <div class="page-wrapper">
     <div class="container-xl">
@@ -44,7 +44,7 @@
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label">连接地址</label>
                                 <div class="col">
-                                    <input id="server" type="text" class="form-control" value="{$node->server}"></input>
+                                    <input id="server" type="text" class="form-control" value="{$node->server}">
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
@@ -72,7 +72,7 @@
                             </div>
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label">自定义配置</label>
-                                <dev id="custom_config"></dev>
+                                <div id="custom_config"></div>
                                 <label class="form-label col-form-label">
                                     请参考 <a href="//wiki.sspanel.org/#/custom-config" target="_blank">wiki.sspanel.org/#/custom-config</a> 修改节点自定义配置
                                 </label>
@@ -85,7 +85,7 @@
                                             <span class="col-auto">
                                                 <label class="form-check form-check-single form-switch">
                                                     <input id="type" class="form-check-input" type="checkbox"
-                                                        {if $node->type == 1}checked="" {/if}>
+                                                        {if $node->type === 1}checked="" {/if}>
                                                 </label>
                                             </span>
                                         </label>
@@ -159,7 +159,7 @@
                                 <div class="row my-3">
                                     <div class="col">
                                         <button id="reset-node-password" class="btn btn-red">重置</button>
-                                        <button id="copy-password" class="btn btn-primary copy-text" data-clipboard-text="{$node->password}">
+                                        <button id="copy-password" class="copy btn btn-primary" data-clipboard-text="{$node->password}">
                                             复制
                                         </button>
                                     </div>
@@ -177,12 +177,10 @@
 </div>
 
 <script>
-    $(function () {
-        new ClipboardJS('.copy-text');
-    });
-    $(".copy-text").click(function () {
-        $('#success-message').text('已复制到您的剪贴板。');
-        $('#success-dialog').modal('show');
+    var clipboard = new ClipboardJS('.copy');
+    clipboard.on('success', function(e) {
+        $('#success-noreload-message').text('已复制到剪切板');
+        $('#success-noreload-dialog').modal('show');
     });
 
     const container = document.getElementById('custom_config');
@@ -198,7 +196,7 @@
             type: 'POST',
             dataType: "json",
             success: function(data) {
-                if (data.ret == 1) {
+                if (data.ret === 1) {
                     $('#success-message').text(data.msg);
                     $('#success-dialog').modal('show');
                 } else {
@@ -222,7 +220,7 @@
                 custom_config: JSON.stringify(editor.get()),
             },
             success: function(data) {
-                if (data.ret == 1) {
+                if (data.ret === 1) {
                     $('#success-message').text(data.msg);
                     $('#success-dialog').modal('show');
                     window.setTimeout("location.href=top.document.referrer", {$config['jump_delay']});
@@ -235,4 +233,4 @@
     });
 </script>
 
-{include file='admin/tabler_footer.tpl'}
+{include file='admin/footer.tpl'}

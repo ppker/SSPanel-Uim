@@ -8,8 +8,13 @@ use App\Controllers\BaseController;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Utils\Tools;
+use Exception;
+use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
+use function in_array;
+use function json_decode;
+use function time;
 
 final class OrderController extends BaseController
 {
@@ -29,7 +34,10 @@ final class OrderController extends BaseController
         ],
     ];
 
-    public function index(ServerRequest $request, Response $response, array $args)
+    /**
+     * @throws Exception
+     */
+    public function index(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         return $response->write(
             $this->view()
@@ -38,24 +46,27 @@ final class OrderController extends BaseController
         );
     }
 
-    public function detail(ServerRequest $request, Response $response, array $args)
+    /**
+     * @throws Exception
+     */
+    public function detail(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $id = $args['id'];
 
         $order = Order::find($id);
-        $order->product_type = Tools::getOrderProductType($order);
-        $order->status = Tools::getOrderStatus($order);
+        $order->product_type = $order->productType();
+        $order->status_text = $order->status();
         $order->create_time = Tools::toDateTime($order->create_time);
         $order->update_time = Tools::toDateTime($order->update_time);
 
-        $product_content = \json_decode($order->product_content);
+        $product_content = json_decode($order->product_content);
 
         $invoice = Invoice::where('order_id', $id)->first();
-        $invoice->status = Tools::getInvoiceStatus($invoice);
+        $invoice->status = $invoice->status();
         $invoice->create_time = Tools::toDateTime($invoice->create_time);
         $invoice->update_time = Tools::toDateTime($invoice->update_time);
         $invoice->pay_time = Tools::toDateTime($invoice->pay_time);
-        $invoice_content = \json_decode($invoice->content);
+        $invoice_content = json_decode($invoice->content);
 
         return $response->write(
             $this->view()
@@ -67,7 +78,7 @@ final class OrderController extends BaseController
         );
     }
 
-    public function cancel(ServerRequest $request, Response $response, array $args)
+    public function cancel(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $order_id = $args['id'];
         $order = Order::find($order_id);
@@ -79,7 +90,7 @@ final class OrderController extends BaseController
             ]);
         }
 
-        $order->update_time = \time();
+        $order->update_time = time();
         $order->status = 'cancelled';
         $order->save();
 
@@ -92,9 +103,9 @@ final class OrderController extends BaseController
             ]);
         }
 
-        $invoice->update_time = \time();
+        $invoice->update_time = time();
 
-        if (\in_array($invoice->status, ['paid_gateway', 'paid_balance', 'paid_admin'])) {
+        if (in_array($invoice->status, ['paid_gateway', 'paid_balance', 'paid_admin'])) {
             $invoice->status = 'cancelled';
             $invoice->save();
 
@@ -113,7 +124,7 @@ final class OrderController extends BaseController
         ]);
     }
 
-    public function delete(ServerRequest $request, Response $response, array $args)
+    public function delete(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $order_id = $args['id'];
         Order::find($order_id)->delete();
@@ -125,18 +136,24 @@ final class OrderController extends BaseController
         ]);
     }
 
-    public function ajax(ServerRequest $request, Response $response, array $args)
+    public function ajax(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $orders = Order::orderBy('id', 'desc')->get();
 
         foreach ($orders as $order) {
-            $order->op = '<button type="button" class="btn btn-red" id="delete-order-' . $order->id . '" 
-            onclick="deleteOrder(' . $order->id . ')">删除</button>
-            <button type="button" class="btn btn-orange" id="cancel-order-' . $order->id . '" 
-            onclick="cancelOrder(' . $order->id . ')">取消</button>
+            $order->op = '<button type="button" class="btn btn-red" id="delete-order-' . $order->id . '"
+             onclick="deleteOrder(' . $order->id . ')">删除</button>';
+
+            if ($order->status === 'pending_payment') {
+                $order->op .= '
+                <button type="button" class="btn btn-orange" id="cancel-order-' . $order->id . '"
+                 onclick="cancelOrder(' . $order->id . ')">取消</button>';
+            }
+
+            $order->op .= '
             <a class="btn btn-blue" href="/admin/order/' . $order->id . '/view">查看</a>';
-            $order->product_type = Tools::getOrderProductType($order);
-            $order->status = Tools::getOrderStatus($order);
+            $order->product_type = $order->productType();
+            $order->status = $order->status();
             $order->create_time = Tools::toDateTime($order->create_time);
             $order->update_time = Tools::toDateTime($order->update_time);
         }

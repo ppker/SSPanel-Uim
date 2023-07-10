@@ -16,12 +16,12 @@ final class PingCommand extends Command
     /**
      * @var string Command Name
      */
-    protected $name = 'ping';
+    protected string $name = 'ping';
 
     /**
      * @var string Command Description
      */
-    protected $description = '[群组/私聊] 获取我或者群组的唯一 ID.';
+    protected string $description = '[群组/私聊] 获取我或者群组的唯一 ID.';
 
     public function handle(): void
     {
@@ -39,7 +39,7 @@ final class PingCommand extends Command
 
             $text = [
                 'Pong！',
-                '您的 ID 是 ' . $ChatID . '.',
+                '你的 ID 是 ' . $ChatID . '.',
             ];
 
             // 回送信息
@@ -50,7 +50,7 @@ final class PingCommand extends Command
                 ]
             );
         } else {
-            if (Setting::obtain('telegram_group_quiet') === true) {
+            if (Setting::obtain('telegram_group_quiet')) {
                 // 群组中不回应
                 return;
             }
@@ -60,7 +60,7 @@ final class PingCommand extends Command
 
             $text = [
                 'Pong！',
-                '您的 ID 是 ' . $Message->getFrom()->getId() . '.',
+                '你的 ID 是 ' . $Message->getFrom()->getId() . '.',
                 '这个群组的 ID 是 ' . $ChatID . '.',
             ];
 

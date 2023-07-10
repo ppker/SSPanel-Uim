@@ -10,6 +10,8 @@ use App\Utils\Telegram\Reply;
 use App\Utils\Telegram\TelegramTools;
 use Telegram\Bot\Actions;
 use Telegram\Bot\Commands\Command;
+use function in_array;
+use function json_decode;
 
 /**
  * Class InfoCommand.
@@ -19,12 +21,12 @@ final class InfoCommand extends Command
     /**
      * @var string Command Name
      */
-    protected $name = 'info';
+    protected string $name = 'info';
 
     /**
      * @var string Command Description
      */
-    protected $description = '[群组]     获取被回复消息的用户信息，管理员命令.';
+    protected string $description = '[群组]     获取被回复消息的用户信息，管理员命令.';
 
     public function handle(): void
     {
@@ -43,14 +45,12 @@ final class InfoCommand extends Command
             // 触发用户
             $SendUser = [
                 'id' => $Message->getFrom()->getId(),
-                'name' => $Message->getFrom()->getFirstName() . ' ' . $Message->getFrom()->getLastName(),
-                'username' => $Message->getFrom()->getUsername(),
             ];
-            if (! \in_array($SendUser['id'], \json_decode(Setting::obtain('telegram_admins')))) {
+            if (! in_array($SendUser['id'], json_decode(Setting::obtain('telegram_admins')))) {
                 $AdminUser = User::where('is_admin', 1)->where('telegram_id', $SendUser['id'])->first();
                 if ($AdminUser === null) {
                     // 非管理员回复消息
-                    if (Setting::obtain('enable_not_admin_reply') === true && Setting::obtain('not_admin_reply_msg') !== '') {
+                    if (Setting::obtain('enable_not_admin_reply') && Setting::obtain('not_admin_reply_msg') !== '') {
                         $this->replyWithMessage(
                             [
                                 'text' => Setting::obtain('not_admin_reply_msg'),
@@ -66,8 +66,6 @@ final class InfoCommand extends Command
                 // 回复源消息用户
                 $FindUser = [
                     'id' => $Message->getReplyToMessage()->getFrom()->getId(),
-                    'name' => $Message->getReplyToMessage()->getFrom()->getFirstName() . ' ' . $Message->getReplyToMessage()->getFrom()->getLastName(),
-                    'username' => $Message->getReplyToMessage()->getFrom()->getUsername(),
                 ];
                 $User = TelegramTools::getUser($FindUser['id']);
                 if ($User === null) {

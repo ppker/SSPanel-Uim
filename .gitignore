@@ -2,8 +2,6 @@
 .htaccess
 */.DS_Store
 .DS_Store
-composer.lock
-.php_cs.cache
 .env
 
 vendor
@@ -25,13 +23,13 @@ config/.config.php
 config/.config.php.bak
 config/appprofile.php
 
-public/clients/
+public/clients/*.*
+!public/clients/.gitkeep
 
 storage/framework/smarty/cache/*
 storage/framework/smarty/compile/*
 storage/framework/views/*
 storage/*.*
-/storage/traffic_notified/
 !storage/framework/smarty/cache/.gitkeep
 !storage/framework/smarty/compile/.gitkeep
 !storage/framework/views/.gitkeep
@@ -48,3 +46,6 @@ flake.nix
 node_modules
 package.json
 package-lock.json
+
+*.cache
+

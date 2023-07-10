@@ -1,4 +1,4 @@
-{include file='admin/tabler_header.tpl'}
+{include file='admin/header.tpl'}
 
 <div class="page-wrapper">
     <div class="container-xl">
@@ -12,27 +12,23 @@
                         <span class="home-subtitle">你可以在这里查看历史消息并添加回复</span>
                     </div>
                 </div>
-                <div class="col-auto ms-auto d-print-none">
+                <div class="col-auto">
                     <div class="btn-list">
                         {if $ticket->status !== 'closed'}
-                        <button href="#" class="btn btn-red d-none d-sm-inline-block" data-bs-toggle="modal"
+                        <button href="#" class="btn btn-red" data-bs-toggle="modal"
                             data-bs-target="#close_ticket_confirm_dialog">
                             <i class="icon ti ti-x"></i>
                             关闭
                         </button>
-                        <button href="#" class="btn btn-red d-sm-none btn-icon" data-bs-toggle="modal"
-                            data-bs-target="#close_ticket_confirm_dialog">
-                            <i class="icon ti ti-x"></i>
-                        </button>
                         {/if}
-                        <button href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
+                        <button id="add_ai_reply" href="#" class="btn btn-primary">
+                            <i class="icon ti ti-robot"></i>
+                            AI 回复
+                        </button>
+                        <button href="#" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#add-reply">
                             <i class="icon ti ti-plus"></i>
                             回复
-                        </button>
-                        <button href="#" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal"
-                            data-bs-target="#add-reply">
-                            <i class="icon ti ti-plus"></i>
                         </button>
                     </div>
                 </div>
@@ -60,14 +56,14 @@
                                 <div class="row">
                                     <div class="col">
                                         <div>
-                                            {nl2br($comment['comment'])}
+                                            {nl2br($comment->comment)}
                                         </div>
-                                        <div class="text-muted my-1">{$comment['commenter_name']} 回复于 {Tools::toDateTime($comment['datetime'])}
+                                        <div class="text-secondary my-1">{$comment->commenter_name} 回复于 {$comment->datetime}
                                         </div>
                                     </div>
                                     <div class="col-auto">
                                         <div>
-                                            # {$comment['comment_id'] + 1}
+                                            # {$comment->comment_id + 1}
                                         </div>
                                     </div>
                                 </div>
@@ -133,7 +129,24 @@
                     comment: $('#reply-comment').val()
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
+                        $('#success-message').text(data.msg);
+                        $('#success-dialog').modal('show');
+                    } else {
+                        $('#fail-message').text(data.msg);
+                        $('#fail-dialog').modal('show');
+                    }
+                }
+            })
+        });
+
+        $("#add_ai_reply").click(function() {
+            $.ajax({
+                url: "/admin/ticket/{$ticket->id}/ai",
+                type: 'PUT',
+                dataType: "json",
+                success: function(data) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                     } else {
@@ -150,7 +163,7 @@
                 type: 'PUT',
                 dataType: "json",
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                     } else {
@@ -160,10 +173,6 @@
                 }
             })
         });
-
-        $("#success-confirm").click(function() {
-            location.reload();
-        });
     </script>
 
-{include file='admin/tabler_footer.tpl'}
+{include file='admin/footer.tpl'}

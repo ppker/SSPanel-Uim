@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use Sentry;
+use function Sentry\init;
 
 final class Boot
 {
@@ -21,15 +21,9 @@ final class Boot
 
     public static function bootSentry(): void
     {
-        if (! isset($_ENV['sentry_dsn'])) {
-            Sentry\init([
+        if ($_ENV['sentry_dsn'] !== '') {
+            init([
                 'dsn' => $_ENV['sentry_dsn'],
-                'prefixes' => [
-                    realpath(__DIR__ . '/../../'),
-                ],
-                'in_app_exclude' => [
-                    realpath(__DIR__ . '/../../vendor'),
-                ],
             ]);
         }
     }

@@ -1,4 +1,4 @@
-{include file="user/tabler_header.tpl"}
+{include file="user/header.tpl"}
 
 <div class="page-wrapper">
     <div class="container-xl">
@@ -36,7 +36,7 @@
                                     {foreach $servers as $server}
                                         <div class="col-lg-4 col-md-6 col-sm-12">
                                             <div class="card">
-                                                {if $server["class"] == 0}
+                                                {if $server["class"] === 0}
                                                 <div class="ribbon bg-blue">免费</div>
                                                 {else}
                                                 <div class="ribbon bg-blue">LV. {$server["class"]}</div>
@@ -46,11 +46,11 @@
                                                         <div class="col-auto">
                                                             <span
                                                                 class="status-indicator
-                                                                {if $server["traffic_limit"] != '0' && $server["traffic_used"] >= $server["traffic_limit"]}
+                                                                {if $server["traffic_limit"] !== 0 && $server["traffic_used"] >= $server["traffic_limit"]}
                                                                 status-yellow 
-                                                                {elseif $server["online"] == "1"}
+                                                                {elseif $server["online"] === 1}
                                                                 status-green 
-                                                                {elseif $server["online"] == "0"}
+                                                                {elseif $server["online"] === 0}
                                                                 status-orange 
                                                                 {else}
                                                                 status-red 
@@ -66,7 +66,7 @@
                                                                 {$server["name"]}&nbsp;
                                                                 <span class="card-subtitle my-2"
                                                                     style="font-size: 10px;">
-                                                                    {if $server["traffic_limit"] == "0"}
+                                                                    {if $server["traffic_limit"] === 0}
                                                                         {round($server["traffic_used"])} GB /
                                                                         不限
                                                                     {else}
@@ -75,7 +75,7 @@
                                                                     {/if}
                                                                 </span>
                                                             </h2>
-                                                            <div class="text-muted">
+                                                            <div class="text-secondary">
                                                                 <ul class="list-inline list-inline-dots mb-0">
                                                                     <li class="list-inline-item">
                                                                         <i class="ti ti-users"></i>&nbsp;
@@ -87,13 +87,11 @@
                                                                     </li>
                                                                     <li class="list-inline-item">
                                                                         <i class="ti ti-server-2"></i>&nbsp;
-                                                                        {if $server['sort'] == 0}
+                                                                        {if $server['sort'] === 0}
                                                                         Shadowsocks
-                                                                        {elseif $server['sort'] == 9}
-                                                                        Shadowsocksr
-                                                                        {elseif $server['sort'] == 11}
-                                                                        V2ray
-                                                                        {elseif $server['sort'] == 14}
+                                                                        {elseif $server['sort'] === 11}
+                                                                        V2Ray
+                                                                        {elseif $server['sort'] === 14}
                                                                         Trojan
                                                                         {/if}
                                                                     </li>
@@ -106,10 +104,10 @@
                                             {if $user->class < $server["class"]}
                                             <div class="card bg-primary-lt">
                                                 <div class="card-body">
-                                                    <p class="text-muted">
+                                                    <p class="text-secondary">
                                                         <i class="ti ti-info-circle icon text-blue"></i>
                                                         你当前的账户等级小于节点等级，因此无法使用。可前往 <a
-                                                            href="/user/shop">商店</a> 订购相应等级套餐
+                                                            href="/user/product">商品页面</a> 订购时间流量包
                                                     </p>
                                                 </div>
                                             </div>
@@ -133,4 +131,4 @@
         });
     </script>
     
-{include file="user/tabler_footer.tpl"}
+{include file="user/footer.tpl"}

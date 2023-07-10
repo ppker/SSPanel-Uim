@@ -7,17 +7,19 @@ namespace App\Controllers\Admin;
 use App\Controllers\AuthController;
 use App\Controllers\BaseController;
 use App\Models\User;
-use App\Services\Auth;
-use App\Utils\Check;
-use App\Utils\Cookie;
+use App\Models\UserMoneyLog;
 use App\Utils\Hash;
 use App\Utils\Tools;
+use Exception;
+use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
+use function str_replace;
+use const PHP_EOL;
 
 final class UserController extends BaseController
 {
-    public static $details = [
+    public static array $details = [
         'field' => [
             'op' => '操作',
             'id' => '用户ID',
@@ -26,10 +28,12 @@ final class UserController extends BaseController
             'money' => '余额',
             'ref_by' => '邀请人',
             'transfer_enable' => '流量限制',
-            'last_day_t' => '累计用量',
+            'transfer_used' => '当期用量',
             'class' => '等级',
+            'is_admin' => '是否管理员',
+            'is_banned' => '是否封禁',
+            'is_inactive' => '是否闲置',
             'reg_date' => '注册时间',
-            'expire_in' => '账户过期',
             'class_expire' => '等级过期',
         ],
         'create_dialog' => [
@@ -60,7 +64,7 @@ final class UserController extends BaseController
         ],
     ];
 
-    public static $update_field = [
+    public static array $update_field = [
         'email',
         'user_name',
         'remark',
@@ -81,7 +85,7 @@ final class UserController extends BaseController
         'auto_reset_day',
         'auto_reset_bandwidth',
         'node_speedlimit',
-        'node_connector',
+        'node_iplimit',
         'port',
         'passwd',
         'method',
@@ -90,9 +94,9 @@ final class UserController extends BaseController
     ];
 
     /**
-     * @param array     $args
+     * @throws Exception
      */
-    public function index(ServerRequest $request, Response $response, array $args)
+    public function index(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         return $response->write(
             $this->view()
@@ -102,40 +106,41 @@ final class UserController extends BaseController
     }
 
     /**
-     * @param array     $args
+     * @throws Exception
      */
-    public function createNewUser(ServerRequest $request, Response $response, array $args)
+    public function createNewUser(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $email = $request->getParam('email');
         $ref_by = $request->getParam('ref_by');
         $password = $request->getParam('password');
         $balance = $request->getParam('balance');
 
-        try {
-            if ($email === '') {
-                throw new \Exception('请填写邮箱');
-            }
-            if (! Check::isEmailLegal($email)) {
-                throw new \Exception('邮箱格式不正确');
-            }
-            $exist = User::where('email', $email)->first();
-            if ($exist !== null) {
-                throw new \Exception('此邮箱已注册');
-            }
-            if ($password === '') {
-                $password = Tools::genRandomChar(16);
-            }
-            AuthController::registerHelper($response, 'user', $email, $password, '', 1, '', 0, $balance, 1);
-            $user = User::where('email', $email)->first();
-            if ($ref_by !== '') {
-                $user->ref_by = (int) $ref_by;
-                $user->save();
-            }
-        } catch (\Exception $e) {
+        if ($email === '' || ! Tools::isEmailLegal($email)) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => $e->getMessage(),
+                'msg' => '邮箱格式错误',
             ]);
+        }
+
+        $exist = User::where('email', $email)->first();
+
+        if ($exist !== null) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => '邮箱已存在',
+            ]);
+        }
+
+        if ($password === '') {
+            $password = Tools::genRandomChar(16);
+        }
+
+        AuthController::registerHelper($response, 'user', $email, $password, '', 1, '', 0, $balance, 1);
+        $user = User::where('email', $email)->first();
+
+        if ($ref_by !== '') {
+            $user->ref_by = (int) $ref_by;
+            $user->save();
         }
 
         return $response->withJson([
@@ -145,11 +150,12 @@ final class UserController extends BaseController
     }
 
     /**
-     * @param array     $args
+     * @throws Exception
      */
-    public function edit(ServerRequest $request, Response $response, array $args)
+    public function edit(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $user = User::find($args['id']);
+
         return $response->write(
             $this->view()
                 ->assign('update_field', self::$update_field)
@@ -158,12 +164,9 @@ final class UserController extends BaseController
         );
     }
 
-    /**
-     * @param array     $args
-     */
-    public function update(ServerRequest $request, Response $response, array $args)
+    public function update(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
-        $id = $args['id'];
+        $id = (int) $args['id'];
         $user = User::find($id);
 
         if ($request->getParam('pass') !== '' && $request->getParam('pass') !== null) {
@@ -171,12 +174,20 @@ final class UserController extends BaseController
             $user->cleanLink();
         }
 
-        $user->addMoneyLog($request->getParam('money') - $user->money);
+        if ($request->getParam('money') !== '' &&
+            $request->getParam('money') !== null &&
+            (float) $request->getParam('money') !== (float) $user->money
+        ) {
+            $money = (float) $request->getParam('money');
+            $diff = $money - $user->money;
+            $remark = ($diff > 0 ? '管理员添加余额' : '管理员扣除余额');
+            (new UserMoneyLog())->addMoneyLog($id, (float) $user->money, $money, $diff, $remark);
+            $user->money = $money;
+        }
 
         $user->email = $request->getParam('email');
         $user->user_name = $request->getParam('user_name');
         $user->remark = $request->getParam('remark');
-        $user->money = $request->getParam('money');
         $user->is_admin = $request->getParam('is_admin') === 'true' ? 1 : 0;
         $user->ga_enable = $request->getParam('ga_enable') === 'true' ? 1 : 0;
         $user->use_new_shop = $request->getParam('use_new_shop') === 'true' ? 1 : 0;
@@ -192,7 +203,7 @@ final class UserController extends BaseController
         $user->auto_reset_day = $request->getParam('auto_reset_day');
         $user->auto_reset_bandwidth = $request->getParam('auto_reset_bandwidth');
         $user->node_speedlimit = $request->getParam('node_speedlimit');
-        $user->node_connector = $request->getParam('node_connector');
+        $user->node_iplimit = $request->getParam('node_iplimit');
         $user->port = $request->getParam('port');
         $user->passwd = $request->getParam('passwd');
         $user->method = $request->getParam('method');
@@ -210,10 +221,8 @@ final class UserController extends BaseController
             'msg' => '修改成功',
         ]);
     }
-    /**
-     * @param array     $args
-     */
-    public function delete(ServerRequest $request, Response $response, array $args)
+
+    public function delete(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $id = $args['id'];
         $user = User::find((int) $id);
@@ -231,48 +240,7 @@ final class UserController extends BaseController
         ]);
     }
 
-    /**
-     * @param array     $args
-     */
-    public function changetouser(ServerRequest $request, Response $response, array $args)
-    {
-        $userid = $request->getParam('userid');
-        $adminid = $request->getParam('adminid');
-        $user = User::find($userid);
-        $admin = User::find($adminid);
-        $expire_in = \time() + 60 * 60;
-
-        if (! $admin->is_admin || ! $user || ! Auth::getUser()->isLogin) {
-            return $response->withJson([
-                'ret' => 0,
-                'msg' => '非法请求',
-            ]);
-        }
-
-        Cookie::set([
-            'uid' => $user->id,
-            'email' => $user->email,
-            'key' => Hash::cookieHash($user->pass, $expire_in),
-            'ip' => md5($_SERVER['REMOTE_ADDR'] . $_ENV['key'] . $user->id . $expire_in),
-            'expire_in' => $expire_in,
-            'old_uid' => Cookie::get('uid'),
-            'old_email' => Cookie::get('email'),
-            'old_key' => Cookie::get('key'),
-            'old_ip' => Cookie::get('ip'),
-            'old_expire_in' => Cookie::get('expire_in'),
-            'old_local' => $request->getParam('local'),
-        ], $expire_in);
-
-        return $response->withJson([
-            'ret' => 1,
-            'msg' => '切换成功',
-        ]);
-    }
-
-    /**
-     * @param array     $args
-     */
-    public function ajax(ServerRequest $request, Response $response, array $args)
+    public function ajax(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $users = User::orderBy('id', 'desc')->get();
 
@@ -280,8 +248,11 @@ final class UserController extends BaseController
             $user->op = '<button type="button" class="btn btn-red" id="delete-user-' . $user->id . '" 
             onclick="deleteUser(' . $user->id . ')">删除</button>
             <a class="btn btn-blue" href="/admin/user/' . $user->id . '/edit">编辑</a>';
-            $user->transfer_enable = round($user->transfer_enable / 1073741824, 2);
-            $user->last_day_t = round($user->last_day_t / 1073741824, 2);
+            $user->transfer_enable = $user->enableTraffic();
+            $user->transfer_used = $user->usedTraffic();
+            $user->is_admin = $user->is_admin === 1 ? '是' : '否';
+            $user->is_banned = $user->is_banned === 1 ? '是' : '否';
+            $user->is_inactive = $user->is_inactive === 1 ? '是' : '否';
         }
 
         return $response->withJson([

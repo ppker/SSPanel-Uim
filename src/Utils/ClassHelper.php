@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Utils;
 
+use function is_null;
+
 final class ClassHelper
 {
-    private static $composer = null;
-    private static $classes = [];
+    private static mixed $composer = null;
+    private static array $classes = [];
 
     public function __construct()
     {
@@ -21,7 +23,7 @@ final class ClassHelper
         }
     }
 
-    public function getClasses()
+    public function getClasses(): array
     {
         $allClasses = [];
 
@@ -34,9 +36,9 @@ final class ClassHelper
         return $allClasses;
     }
 
-    public function getClassesByNamespace($namespace)
+    public function getClassesByNamespace($namespace): array
     {
-        if (strpos($namespace, '\\') !== 0) {
+        if (! str_starts_with($namespace, '\\')) {
             $namespace = '\\' . $namespace;
         }
 
@@ -44,9 +46,9 @@ final class ClassHelper
         return array_filter($this->getClasses(), static function ($class) use ($termUpper) {
             $className = strtoupper($class);
             if (
-                strpos($className, $termUpper) === 0 and
-                strpos($className, strtoupper('Abstract')) === false and
-                strpos($className, strtoupper('Interface')) === false
+                str_starts_with($className, $termUpper) &&
+                ! str_contains($className, strtoupper('Abstract')) &&
+                ! str_contains($className, strtoupper('Interface'))
             ) {
                 return $class;
             }

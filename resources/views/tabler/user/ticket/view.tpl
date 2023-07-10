@@ -1,4 +1,4 @@
-{include file='user/tabler_header.tpl'}
+{include file='user/header.tpl'}
 
 <div class="page-wrapper">
     <div class="container-xl">
@@ -13,16 +13,12 @@
                     </div>
                 </div>
                 {if $ticket->status !== 'closed'}
-                <div class="col-auto ms-auto d-print-none">
+                <div class="col-auto">
                     <div class="btn-list">
-                        <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
+                        <a href="#" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#add-reply">
                             <i class="icon ti ti-plus"></i>
                             添加回复
-                        </a>
-                        <a href="#" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal"
-                            data-bs-target="#add-reply" aria-label="Create new report">
-                            <i class="icon ti ti-plus"></i>
                         </a>
                     </div>
                 </div>
@@ -85,13 +81,13 @@
                                     <div class="row">
                                         <div class="col">
                                             <div>
-                                                {nl2br($comment['comment'])}
+                                                {nl2br($comment->comment)}
                                             </div>
-                                            <div class="text-muted my-1">{$comment['commenter_name']} 回复于 {Tools::toDateTime($comment['datetime'])}</div>
+                                            <div class="text-secondary my-1">{$comment->commenter_name} 回复于 {$comment->datetime}</div>
                                         </div>
                                         <div class="col-auto">
                                             <div>
-                                                # {$comment['comment_id'] + 1}
+                                                # {$comment->comment_id + 1}
                                             </div>
                                         </div>
                                     </div>
@@ -135,7 +131,7 @@
                     comment: $('#reply-comment').val()
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                     } else {
@@ -145,10 +141,6 @@
                 }
             })
         });
-
-        $("#success-confirm").click(function() {
-            location.reload();
-        });
     </script>
     
-{include file='user/tabler_footer.tpl'}
+{include file='user/footer.tpl'}

@@ -1,4 +1,4 @@
-{include file='admin/tabler_header.tpl'}
+{include file='admin/header.tpl'}
 
 <div class="page-wrapper">
     <div class="container-xl">
@@ -12,14 +12,14 @@
                         <span class="home-subtitle">查看用户的返利记录</span>
                     </div>
                 </div>
-                <div class="col-auto ms-auto d-print-none">
+                <div class="col-auto">
                     <div class="btn-list">
-                        <button href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
+                        <button href="#" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#update-invite-dialog">
                             <i class="icon ti ti-user-edit"></i>
                             修改邀请者
                         </button>
-                        <button href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
+                        <button href="#" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#add-invite-dialog">
                             <i class="icon ti ti-plus"></i>
                             添加邀请数量
@@ -60,7 +60,7 @@
                 </div>
                 <div class="modal-body">
                     {foreach $details['update_dialog'] as $from}
-                        {if $from['type'] == 'input'}
+                        {if $from['type'] === 'input'}
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label">{$from['info']}</label>
                                 <div class="col">
@@ -69,14 +69,14 @@
                                 </div>
                             </div>
                         {/if}
-                        {if $from['type'] == 'textarea'}
+                        {if $from['type'] === 'textarea'}
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label">{$from['info']}</label>
                                 <textarea id="{$from['id']}" class="col form-control" rows="{$from['rows']}"
                                     placeholder="{$from['placeholder']}"></textarea>
                             </div>
                         {/if}
-                        {if $from['type'] == 'select'}
+                        {if $from['type'] === 'select'}
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label">{$from['info']}</label>
                                 <div class="col">
@@ -107,7 +107,7 @@
                 </div>
                 <div class="modal-body">
                     {foreach $details['add_dialog'] as $from}
-                        {if $from['type'] == 'input'}
+                        {if $from['type'] === 'input'}
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label">{$from['info']}</label>
                                 <div class="col">
@@ -116,14 +116,14 @@
                                 </div>
                             </div>
                         {/if}
-                        {if $from['type'] == 'textarea'}
+                        {if $from['type'] === 'textarea'}
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label">{$from['info']}</label>
                                 <textarea id="{$from['id']}" class="col form-control" rows="{$from['rows']}"
                                     placeholder="{$from['placeholder']}"></textarea>
                             </div>
                         {/if}
-                        {if $from['type'] == 'select'}
+                        {if $from['type'] === 'select'}
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label">{$from['info']}</label>
                                 <div class="col">
@@ -162,9 +162,6 @@
                 {foreach $details['field'] as $key => $value}
                 { data: '{$key}' },
                 {/foreach}
-            ],
-            "columnDefs":[
-                { targets:[0],orderable:false },
             ],
             "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
@@ -206,7 +203,7 @@
                     {/foreach}
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                         reloadTableAjax();
@@ -229,7 +226,7 @@
                     {/foreach}
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                         reloadTableAjax();
@@ -248,4 +245,4 @@
         loadTable();
     </script>
 
-{include file='admin/tabler_footer.tpl'}
+{include file='admin/footer.tpl'}

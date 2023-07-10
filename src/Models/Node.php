@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use function array_key_exists;
+use function count;
+use function time;
+
 final class Node extends Model
 {
     protected $connection = 'default';
-
     protected $table = 'node';
 
     protected $casts = [
         'traffic_rate' => 'float',
-        'mu_only' => 'int',
         'node_heartbeat' => 'int',
     ];
 
@@ -29,44 +31,12 @@ final class Node extends Model
      */
     public function sort(): string
     {
-        switch ($this->sort) {
-            case 0:
-                $sort = 'Shadowsocks';
-                break;
-            case 1:
-                $sort = 'ShadowsocksR';
-                break;
-            case 11:
-                $sort = 'V2Ray 节点';
-                break;
-            case 14:
-                $sort = 'Trojan';
-                break;
-            default:
-                $sort = '系统保留';
-        }
-        return $sort;
-    }
-
-    /**
-     * 单端口多用户启用类型
-     */
-    public function muOnly(): string
-    {
-        switch ($this->mu_only) {
-            case -1:
-                $mu_only = '只启用普通端口';
-                break;
-            case 0:
-                $mu_only = '单端口多用户与普通端口并存';
-                break;
-            case 1:
-                $mu_only = '只启用单端口多用户';
-                break;
-            default:
-                $mu_only = '错误类型';
-        }
-        return $mu_only;
+        return match ($this->sort) {
+            0 => 'Shadowsocks',
+            11 => 'V2Ray',
+            14 => 'Trojan',
+            default => '未知',
+        };
     }
 
     /**
@@ -85,10 +55,11 @@ final class Node extends Model
     public function getNodeOnlineStatus(): int
     {
         // 类型 9 或者心跳为 0
-        if ($this->node_heartbeat === 0 || \in_array($this->sort, [9])) {
+        if ($this->node_heartbeat === 0) {
             return 0;
         }
-        return $this->node_heartbeat + 300 > \time() ? 1 : -1;
+
+        return $this->node_heartbeat + 600 > time() ? 1 : -1;
     }
 
     /**
@@ -102,18 +73,8 @@ final class Node extends Model
         if ($this->node_speedlimit >= 1024.00) {
             return round($this->node_speedlimit / 1024.00, 1) . 'Gbps';
         }
-        return $this->node_speedlimit . 'Mbps';
-    }
 
-    /**
-     * 节点是在线的
-     */
-    public function isNodeOnline(): ?bool
-    {
-        if ($this->node_heartbeat === 0) {
-            return false;
-        }
-        return $this->node_heartbeat > \time() - 300;
+        return $this->node_speedlimit . 'Mbps';
     }
 
     /**
@@ -125,23 +86,17 @@ final class Node extends Model
     }
 
     /**
-     * 节点是可用的，即流量未耗尽并且在线
-     */
-    public function isNodeAccessable(): bool
-    {
-        return $this->isNodeTrafficOut() === false && $this->isNodeOnline() === true;
-    }
-
-    /**
      * 更新节点 IP
      */
-    public function changeNodeIp(string $server_name): bool
+    public function changeNodeIp(string $server_name): void
     {
         $result = dns_get_record($server_name, DNS_A + DNS_AAAA);
         $dns = [];
-        if (count($result) > 0) {
+
+        if ($result !== false && count($result) > 0) {
             $dns = $result[0];
         }
+
         if (array_key_exists('ip', $dns)) {
             $ip = $dns['ip'];
         } elseif (array_key_exists('ipv6', $dns)) {
@@ -149,17 +104,7 @@ final class Node extends Model
         } else {
             $ip = $server_name;
         }
-        $this->node_ip = $ip;
-        return true;
-    }
 
-    /**
-     * 获取节点 IP
-     */
-    public function getNodeIp(): string
-    {
-        $node_ip_str = $this->node_ip;
-        $node_ip_array = explode(',', $node_ip_str);
-        return $node_ip_array[0];
+        $this->node_ip = $ip;
     }
 }

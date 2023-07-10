@@ -1,4 +1,4 @@
-{include file='admin/tabler_header.tpl'}
+{include file='admin/header.tpl'}
 
 <div class="page-wrapper">
     <div class="container-xl">
@@ -104,15 +104,15 @@
         function deleteNode(node_id) {
             $('#notice-message').text('确定删除此节点？');
             $('#notice-dialog').modal('show');
-            $('#notice-confirm').on('click', function() {
+            $('#notice-confirm').off('click').on('click', function() {
                 $.ajax({
                     url: "/admin/node/" + node_id,
                     type: 'DELETE',
                     dataType: "json",
                     success: function(data) {
-                        if (data.ret == 1) {
-                            $('#success-message').text(data.msg);
-                            $('#success-dialog').modal('show');
+                        if (data.ret === 1) {
+                            $('#success-noreload-message').text(data.msg);
+                            $('#success-noreload-dialog').modal('show');
                             reloadTableAjax();
                         } else {
                             $('#fail-message').text(data.msg);
@@ -121,20 +121,20 @@
                     }
                 })
             });
-        };
+        }
 
         function copyNode(node_id) {
             $('#notice-message').text('确定复制此节点？');
             $('#notice-dialog').modal('show');
-            $('#notice-confirm').on('click', function() {
+            $('#notice-confirm').off('click').on('click', function() {
                 $.ajax({
                     url: "/admin/node/" + node_id + "/copy",
                     type: 'POST',
                     dataType: "json",
                     success: function(data) {
-                        if (data.ret == 1) {
-                            $('#success-message').text(data.msg);
-                            $('#success-dialog').modal('show');
+                        if (data.ret === 1) {
+                            $('#success-noreload-message').text(data.msg);
+                            $('#success-noreload-dialog').modal('show');
                             reloadTableAjax();
                         } else {
                             $('#fail-message').text(data.msg);
@@ -143,7 +143,7 @@
                     }
                 })
             });
-        };
+        }
 
         function reloadTableAjax() {
             table.ajax.reload(null, false);
@@ -152,4 +152,4 @@
         loadTable();
     </script>
 
-{include file='admin/tabler_footer.tpl'}
+{include file='admin/footer.tpl'}

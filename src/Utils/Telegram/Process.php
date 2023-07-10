@@ -4,37 +4,38 @@ declare(strict_types=1);
 
 namespace App\Utils\Telegram;
 
-use Exception;
+use Psr\Http\Message\RequestInterface;
 use Telegram\Bot\Api;
+use Telegram\Bot\Exceptions\TelegramSDKException;
 
 final class Process
 {
-    public static function index(): void
+    /**
+     * @throws TelegramSDKException
+     */
+    public static function index(RequestInterface $request): void
     {
-        try {
-            $bot = new Api($_ENV['telegram_token']);
-            $bot->addCommands(
-                [
-                    Commands\MyCommand::class,
-                    Commands\HelpCommand::class,
-                    Commands\InfoCommand::class,
-                    Commands\MenuCommand::class,
-                    Commands\PingCommand::class,
-                    Commands\StartCommand::class,
-                    Commands\UnbindCommand::class,
-                    Commands\CheckinCommand::class,
-                    Commands\SetuserCommand::class,
-                ]
-            );
-            $update = $bot->commandsHandler(true);
-            if ($update->getCallbackQuery() !== null) {
-                new Callbacks\Callback($bot, $update->getCallbackQuery());
-            }
-            if ($update->getMessage() !== null) {
-                new Message($bot, $update->getMessage());
-            }
-        } catch (Exception $e) {
-            $e->getMessage();
+        $bot = new Api($_ENV['telegram_token']);
+
+        $bot->addCommands([
+            new Commands\MyCommand(),
+            new Commands\HelpCommand(),
+            new Commands\InfoCommand(),
+            new Commands\MenuCommand(),
+            new Commands\PingCommand(),
+            new Commands\StartCommand(),
+            new Commands\UnbindCommand(),
+            new Commands\CheckinCommand(),
+            new Commands\SetuserCommand(),
+        ]);
+
+        $bot->commandsHandler(true, $request);
+        $update = $bot->getWebhookUpdate();
+
+        if ($update->has('callback_query')) {
+            new Callback($bot, $update->getCallbackQuery());
+        } elseif ($update->has('message')) {
+            new Message($bot, $update->getMessage());
         }
     }
 }

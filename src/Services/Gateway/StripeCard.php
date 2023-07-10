@@ -8,24 +8,25 @@ use App\Models\Paylist;
 use App\Models\Setting;
 use App\Services\Auth;
 use App\Services\View;
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
+use Stripe\Checkout\Session;
+use Stripe\Exception\ApiErrorException;
+use Stripe\Stripe;
+use Stripe\StripeClient;
 
 final class StripeCard extends AbstractPayment
 {
     public static function _name(): string
     {
-        return 'stripe_card';
+        return 'stripe';
     }
 
     public static function _enable(): bool
     {
-        if (self::getActiveGateway('stripe_card') && Setting::obtain('stripe_card')) {
-            return true;
-        }
-
-        return false;
+        return self::getActiveGateway('stripe');
     }
 
     public static function _readableName(): string
@@ -53,24 +54,33 @@ final class StripeCard extends AbstractPayment
 
         $exchange_amount = $price / self::exchange($configs['stripe_currency']) * 100;
 
-        \Stripe\Stripe::setApiKey($configs['stripe_sk']);
-        $session = \Stripe\Checkout\Session::create([
-            'customer_email' => $user->email,
-            'line_items' => [[
-                'price_data' => [
-                    'currency' => $configs['stripe_currency'],
-                    'product_data' => [
-                        'name' => 'Account Recharge',
+        Stripe::setApiKey($configs['stripe_sk']);
+        $session = null;
+
+        try {
+            $session = Session::create([
+                'customer_email' => $user->email,
+                'line_items' => [[
+                    'price_data' => [
+                        'currency' => $configs['stripe_currency'],
+                        'product_data' => [
+                            'name' => 'Account Recharge',
+                        ],
+                        'unit_amount' => (int) $exchange_amount,
                     ],
-                    'unit_amount' => (int) $exchange_amount,
+                    'quantity' => 1,
                 ],
-                'quantity' => 1,
-            ],
-            ],
-            'mode' => 'payment',
-            'success_url' => self::getUserReturnUrl() . '?session_id={CHECKOUT_SESSION_ID}&' . http_build_query($params),
-            'cancel_url' => $_ENV['baseUrl'] . '/user/code',
-        ]);
+                ],
+                'mode' => 'payment',
+                'success_url' => self::getUserReturnUrl() . '?session_id={CHECKOUT_SESSION_ID}&' . http_build_query($params),
+                'cancel_url' => $_ENV['baseUrl'] . '/user/invoice',
+            ]);
+        } catch (ApiErrorException $e) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => $e->getMessage(),
+            ]);
+        }
 
         return $response->withRedirect($session->url);
     }
@@ -80,9 +90,12 @@ final class StripeCard extends AbstractPayment
         return $response->write('ok');
     }
 
+    /**
+     * @throws Exception
+     */
     public static function getPurchaseHTML(): string
     {
-        return View::getSmarty()->fetch('gateway/stripe_card.tpl');
+        return View::getSmarty()->fetch('gateway/stripe.tpl');
     }
 
     public function getReturnHTML($request, $response, $args): ResponseInterface
@@ -96,26 +109,22 @@ final class StripeCard extends AbstractPayment
             die('error_sign');
         }
 
-        $stripe = new \Stripe\StripeClient(Setting::obtain('stripe_sk'));
-        $session = $stripe->checkout->sessions->retrieve($session_id, []);
+        $stripe = new StripeClient(Setting::obtain('stripe_sk'));
+        $session = null;
 
-        if ($session->payment_status === 'paid') {
-            $this->postPayment($trade_no, '银行卡支付');
+        try {
+            $session = $stripe->checkout->sessions->retrieve($session_id, []);
+        } catch (ApiErrorException $e) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => $e->getMessage(),
+            ]);
         }
 
-        return $response->withRedirect($_ENV['baseUrl'] . '/user/code');
-    }
+        if ($session->payment_status === 'paid') {
+            $this->postPayment($trade_no);
+        }
 
-    public static function exchange($currency)
-    {
-        $ch = curl_init();
-        $url = 'https://api.exchangerate.host/latest?symbols=CNY&base=' . strtoupper($currency);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        $currency = \json_decode(curl_exec($ch));
-        curl_close($ch);
-
-        return $currency->rates->CNY;
+        return $response->withRedirect($_ENV['baseUrl'] . '/user/invoice');
     }
 }

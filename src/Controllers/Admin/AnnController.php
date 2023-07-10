@@ -8,32 +8,38 @@ use App\Controllers\BaseController;
 use App\Models\Ann;
 use App\Models\User;
 use App\Utils\Telegram;
-use League\HTMLToMarkdown\HtmlConverter;
+use Exception;
+use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
+use Telegram\Bot\Exceptions\TelegramSDKException;
+use function date;
+use function str_replace;
+use function strip_tags;
+use const PHP_EOL;
 
 final class AnnController extends BaseController
 {
-    public static $details =
-    [
-        'field' => [
-            'op' => '操作',
-            'id' => '公告ID',
-            'date' => '日期',
-            'content' => '公告内容',
-        ],
-    ];
+    public static array $details =
+        [
+            'field' => [
+                'op' => '操作',
+                'id' => '公告ID',
+                'date' => '日期',
+                'content' => '公告内容',
+            ],
+        ];
 
-    public static $update_field = [
+    public static array $update_field = [
         'email_notify_class',
     ];
 
     /**
      * 后台公告页面
      *
-     * @param array     $args
+     * @throws Exception
      */
-    public function index(ServerRequest $request, Response $response, array $args)
+    public function index(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         return $response->write(
             $this->view()
@@ -45,9 +51,9 @@ final class AnnController extends BaseController
     /**
      * 后台公告创建页面
      *
-     * @param array     $args
+     * @throws Exception
      */
-    public function create(ServerRequest $request, Response $response, array $args)
+    public function create(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         return $response->write(
             $this->view()
@@ -59,14 +65,22 @@ final class AnnController extends BaseController
     /**
      * 后台添加公告
      *
-     * @param array     $args
+     * @throws TelegramSDKException
      */
-    public function add(ServerRequest $request, Response $response, array $args)
+    public function add(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $email_notify_class = (int) $request->getParam('email_notify_class');
-        $email_notify = (int) $request->getParam('email_notify');
-        $content = (string) $request->getParam('content');
-        $subject = $_ENV['appName'] . ' - 公告';
+        $email_notify = $request->getParam('email_notify') === 'true' ? 1 : 0;
+
+        $content = strip_tags(
+            str_replace(
+                ['<p>','</p>'],
+                ['','<br><br>'],
+                $request->getParam('content')
+            ),
+            ['br', 'a', 'strong']
+        );
+        $subject = $_ENV['appName'] . ' - 新公告发布';
 
         if ($content !== '') {
             $ann = new Ann();
@@ -80,14 +94,15 @@ final class AnnController extends BaseController
                 ]);
             }
         }
-        if ($email_notify === 1) {
+
+        if ($email_notify) {
             $users = User::where('class', '>=', $email_notify_class)
                 ->get();
 
             foreach ($users as $user) {
                 $user->sendMail(
                     $subject,
-                    'news/warn.tpl',
+                    'warn.tpl',
                     [
                         'user' => $user,
                         'text' => $content,
@@ -98,10 +113,15 @@ final class AnnController extends BaseController
             }
         }
 
-        $converter = new HtmlConverter();
-
         if ($_ENV['enable_telegram']) {
-            Telegram::sendMarkdown('新公告：' . PHP_EOL . $converter->convert($request->getParam('content')));
+            try {
+                Telegram::sendHtml('新公告：' . PHP_EOL . $content);
+            } catch (TelegramSDKException $e) {
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => $email_notify === 1 ? '公告添加成功，邮件发送成功，Telegram发送失败' : '公告添加成功，Telegram发送失败',
+                ]);
+            }
         }
 
         return $response->withJson([
@@ -113,9 +133,9 @@ final class AnnController extends BaseController
     /**
      * 后台编辑公告页面
      *
-     * @param array     $args
+     * @throws Exception
      */
-    public function edit(ServerRequest $request, Response $response, array $args)
+    public function edit(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $ann = Ann::find($args['id']);
         return $response->write(
@@ -128,32 +148,42 @@ final class AnnController extends BaseController
     /**
      * 后台编辑公告提交
      *
-     * @param array     $args
+     * @throws TelegramSDKException
      */
-    public function update(ServerRequest $request, Response $response, array $args)
+    public function update(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $ann = Ann::find($args['id']);
-        $ann->content = $request->getParam('content');
+        $ann->content = (string) $request->getParam('content');
         $ann->date = date('Y-m-d H:i:s');
+
         if (! $ann->save()) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '修改失败',
+                'msg' => '公告更新失败',
             ]);
         }
-        Telegram::sendMarkdown('公告更新：' . PHP_EOL . $request->getParam('markdown'));
+
+        if ($_ENV['enable_telegram']) {
+            try {
+                Telegram::sendHtml('公告更新：' . PHP_EOL . $request->getParam('content'));
+            } catch (TelegramSDKException $e) {
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => '公告更新成功，Telegram发送失败',
+                ]);
+            }
+        }
+
         return $response->withJson([
             'ret' => 1,
-            'msg' => '修改成功',
+            'msg' => '公告更新成功',
         ]);
     }
 
     /**
      * 后台删除公告
-     *
-     * @param array     $args
      */
-    public function delete(ServerRequest $request, Response $response, array $args)
+    public function delete(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $ann = Ann::find($args['id']);
         if (! $ann->delete()) {
@@ -170,10 +200,8 @@ final class AnnController extends BaseController
 
     /**
      * 后台公告页面 AJAX
-     *
-     * @param array     $args
      */
-    public function ajax(ServerRequest $request, Response $response, array $args)
+    public function ajax(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $anns = Ann::orderBy('id', 'asc')->get();
 

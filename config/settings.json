@@ -61,92 +61,12 @@
     },
     {
         "id": null,
-        "item": "vmq_gateway",
-        "value": "",
-        "class": "vmq",
-        "is_public": 0,
-        "type": "string",
-        "default": "",
-        "mark": "V免签网关"
-    },
-    {
-        "id": null,
-        "item": "vmq_key",
-        "value": "",
-        "class": "vmq",
-        "is_public": 0,
-        "type": "string",
-        "default": "",
-        "mark": "V免签密钥"
-    },
-    {
-        "id": null,
-        "item": "payjs_url",
-        "value": "",
-        "class": "payjs",
-        "is_public": 0,
-        "type": "string",
-        "default": "",
-        "mark": "payjs_url"
-    },
-    {
-        "id": null,
-        "item": "payjs_mchid",
-        "value": "",
-        "class": "payjs",
-        "is_public": 0,
-        "type": "string",
-        "default": "",
-        "mark": "payjs_mchid"
-    },
-    {
-        "id": null,
-        "item": "payjs_key",
-        "value": "",
-        "class": "payjs",
-        "is_public": 0,
-        "type": "string",
-        "default": "",
-        "mark": "payjs_key"
-    },
-    {
-        "id": null,
-        "item": "theadpay_url",
-        "value": "",
-        "class": "theadpay",
-        "is_public": 0,
-        "type": "string",
-        "default": "",
-        "mark": "theadpay_url"
-    },
-    {
-        "id": null,
-        "item": "theadpay_mchid",
-        "value": "",
-        "class": "theadpay",
-        "is_public": 0,
-        "type": "string",
-        "default": "",
-        "mark": "theadpay_mchid"
-    },
-    {
-        "id": null,
-        "item": "theadpay_key",
-        "value": "",
-        "class": "theadpay",
-        "is_public": 0,
-        "type": "string",
-        "default": "",
-        "mark": "theadpay_key"
-    },
-    {
-        "id": null,
         "item": "stripe_currency",
-        "value": "HKD",
+        "value": "USD",
         "class": "stripe",
         "is_public": 0,
         "type": "string",
-        "default": "HKD",
+        "default": "USD",
         "mark": "货币代码"
     },
     {
@@ -301,6 +221,56 @@
     },
     {
         "id": null,
+        "item": "paypal_mode",
+        "value": "live",
+        "class": "paypal",
+        "is_public": 0,
+        "type": "string",
+        "default": "live",
+        "mark": "PayPal模式"
+    },
+    {
+        "id": null,
+        "item": "paypal_client_id",
+        "value": "",
+        "class": "paypal",
+        "is_public": 1,
+        "type": "string",
+        "default": "",
+        "mark": "PayPal客戶ID"
+    },
+    {
+        "id": null,
+        "item": "paypal_client_secret",
+        "value": "",
+        "class": "paypal",
+        "is_public": 0,
+        "type": "string",
+        "default": "",
+        "mark": "PayPal客戶密钥"
+    },
+    {
+        "id": null,
+        "item": "paypal_currency",
+        "value": "USD",
+        "class": "paypal",
+        "is_public": 1,
+        "type": "string",
+        "default": "USD",
+        "mark": "PayPal货币"
+    },
+    {
+        "id": null,
+        "item": "paypal_locale",
+        "value": "en_US",
+        "class": "paypal",
+        "is_public": 0,
+        "type": "string",
+        "default": "en_US",
+        "mark": "PayPal语言"
+    },
+    {
+        "id": null,
         "item": "smtp_host",
         "value": "",
         "class": "smtp",
@@ -381,13 +351,53 @@
     },
     {
         "id": null,
-        "item": "mail_driver",
+        "item": "email_driver",
         "value": "none",
-        "class": "mail",
+        "class": "email",
         "is_public": 0,
         "type": "string",
         "default": "none",
         "mark": "邮件服务提供商"
+    },
+    {
+        "id": null,
+        "item": "email_verify_code_ttl",
+        "value": "3600",
+        "class": "email",
+        "is_public": 0,
+        "type": "int",
+        "default": "3600",
+        "mark": "邮箱验证码有效期"
+    },
+    {
+        "id": null,
+        "item": "email_password_reset_ttl",
+        "value": "3600",
+        "class": "email",
+        "is_public": 0,
+        "type": "int",
+        "default": "3600",
+        "mark": "邮箱重设密码链接有效期"
+    },
+    {
+        "id": null,
+        "item": "email_request_ip_limit",
+        "value": "3",
+        "class": "email",
+        "is_public": 0,
+        "type": "int",
+        "default": "3",
+        "mark": "单个IP每小时可请求的发信次数"
+    },
+    {
+        "id": null,
+        "item": "email_request_address_limit",
+        "value": "3",
+        "class": "email",
+        "is_public": 0,
+        "type": "int",
+        "default": "3",
+        "mark": "单个邮箱地址每小时可请求的发信次数"
     },
     {
         "id": null,
@@ -507,7 +517,17 @@
         "is_public": 0,
         "type": "string",
         "default": "",
-        "mark": "mailgun发送者"
+        "mark": "mailgun发件邮箱"
+    },
+    {
+        "id": null,
+        "item": "mailgun_sender_name",
+        "value": "",
+        "class": "mailgun",
+        "is_public": 0,
+        "type": "string",
+        "default": "",
+        "mark": "mailgun发信人名称"
     },
     {
         "id": null,
@@ -621,49 +641,9 @@
     },
     {
         "id": null,
-        "item": "enable_admin_contact",
-        "value": "0",
-        "class": "contact",
-        "is_public": 1,
-        "type": "bool",
-        "default": "0",
-        "mark": "是否显示站长联系方式"
-    },
-    {
-        "id": null,
-        "item": "admin_contact1",
-        "value": "qq",
-        "class": "contact",
-        "is_public": 1,
-        "type": "string",
-        "default": "qq",
-        "mark": "站长联系方式一"
-    },
-    {
-        "id": null,
-        "item": "admin_contact2",
-        "value": "mail",
-        "class": "contact",
-        "is_public": 1,
-        "type": "string",
-        "default": "mail",
-        "mark": "站长联系方式二"
-    },
-    {
-        "id": null,
-        "item": "admin_contact3",
-        "value": "telegram",
-        "class": "contact",
-        "is_public": 1,
-        "type": "string",
-        "default": "telegram",
-        "mark": "站长联系方式三"
-    },
-    {
-        "id": null,
         "item": "tawk_id",
         "value": "",
-        "class": "live_chat",
+        "class": "support",
         "is_public": 1,
         "type": "string",
         "default": "",
@@ -673,7 +653,7 @@
         "id": null,
         "item": "crisp_id",
         "value": "",
-        "class": "live_chat",
+        "class": "support",
         "is_public": 1,
         "type": "string",
         "default": "",
@@ -683,7 +663,7 @@
         "id": null,
         "item": "livechat_id",
         "value": "",
-        "class": "live_chat",
+        "class": "support",
         "is_public": 1,
         "type": "string",
         "default": "",
@@ -693,7 +673,7 @@
         "id": null,
         "item": "mylivechat_id",
         "value": "",
-        "class": "live_chat",
+        "class": "support",
         "is_public": 1,
         "type": "string",
         "default": "",
@@ -703,11 +683,31 @@
         "id": null,
         "item": "live_chat",
         "value": "none",
-        "class": "live_chat",
+        "class": "support",
         "is_public": 1,
         "type": "string",
         "default": "none",
         "mark": "客服系统开关"
+    },
+    {
+        "id": null,
+        "item": "enable_ticket",
+        "value": "1",
+        "class": "support",
+        "is_public": 1,
+        "type": "bool",
+        "default": "1",
+        "mark": "启用工单系统"
+    },
+    {
+        "id": null,
+        "item": "mail_ticket",
+        "value": "1",
+        "class": "support",
+        "is_public": 0,
+        "type": "bool",
+        "default": "1",
+        "mark": "启用工单邮件提醒"
     },
     {
         "id": null,
@@ -728,36 +728,6 @@
         "type": "bool",
         "default": "0",
         "mark": "邮箱验证"
-    },
-    {
-        "id": null,
-        "item": "email_verify_ttl",
-        "value": "3600",
-        "class": "register",
-        "is_public": 0,
-        "type": "int",
-        "default": "3600",
-        "mark": "邮箱验证码有效期"
-    },
-    {
-        "id": null,
-        "item": "email_verify_ip_limit",
-        "value": "5",
-        "class": "register",
-        "is_public": 0,
-        "type": "int",
-        "default": "5",
-        "mark": "验证码有效期内单个ip可请求的发信次数"
-    },
-    {
-        "id": null,
-        "item": "email_verify_email_limit",
-        "value": "5",
-        "class": "register",
-        "is_public": 0,
-        "type": "int",
-        "default": "5",
-        "mark": "验证码有效期内单个邮箱可请求的发信次数"
     },
     {
         "id": null,
@@ -847,27 +817,27 @@
         "is_public": 0,
         "type": "int",
         "default": "20",
-        "mark": "注册时赠送的流量（单位：GB）"
+        "mark": "注册时赠送的流量（GB）"
     },
     {
         "id": null,
         "item": "sign_up_for_free_time",
-        "value": "7",
+        "value": "365",
         "class": "register",
         "is_public": 0,
         "type": "int",
-        "default": "7",
-        "mark": "注册时赠送的时长（单位：天）"
+        "default": "365",
+        "mark": "注册时设定的账户有效期（天）"
     },
     {
         "id": null,
-        "item": "connection_device_limit",
+        "item": "connection_ip_limit",
         "value": "0",
         "class": "register",
         "is_public": 0,
         "type": "int",
         "default": "0",
-        "mark": "连接设备限制"
+        "mark": "注册时设定的连接 IP 限制"
     },
     {
         "id": null,
@@ -877,7 +847,7 @@
         "is_public": 0,
         "type": "int",
         "default": "0",
-        "mark": "使用速率限制"
+        "mark": "注册时设定的使用速率限制"
     },
     {
         "id": null,
@@ -897,16 +867,16 @@
         "is_public": 0,
         "type": "int",
         "default": "7",
-        "mark": "注册时设定的等级过期时间（单位：天）"
+        "mark": "注册时设定的等级过期时间（天）"
     },
     {
         "id": null,
         "item": "sign_up_for_method",
-        "value": "chacha20-ietf",
+        "value": "aes-128-gcm",
         "class": "register",
         "is_public": 0,
         "type": "string",
-        "default": "chacha20-ietf",
+        "default": "aes-128-gcm",
         "mark": "默认加密"
     },
     {
@@ -937,7 +907,7 @@
         "is_public": 1,
         "type": "int",
         "default": "1",
-        "mark": "邀请注册余额奖励（单位：元）"
+        "mark": "邀请注册余额奖励（元）"
     },
     {
         "id": null,
@@ -947,16 +917,16 @@
         "is_public": 1,
         "type": "int",
         "default": "10",
-        "mark": "邀请注册流量奖励（单位：GB）"
+        "mark": "邀请注册流量奖励（GB）"
     },
     {
         "id": null,
         "item": "invitation_mode",
-        "value": "after_purchase",
+        "value": "after_paid",
         "class": "invite",
         "is_public": 0,
         "type": "string",
-        "default": "after_purchase",
+        "default": "after_paid",
         "mark": "邀请模式"
     },
     {
@@ -1007,7 +977,7 @@
         "is_public": 0,
         "type": "int",
         "default": "180",
-        "mark": "返利时间范围限制（单位：天）"
+        "mark": "返利时间范围限制（天）"
     },
     {
         "id": null,
@@ -1382,21 +1352,21 @@
     {
         "id": null,
         "item": "display_media",
-        "value": "1",
+        "value": "0",
         "class": "feature",
         "is_public": 1,
         "type": "bool",
-        "default": "1",
+        "default": "0",
         "mark": "显示节点流媒体解锁情况"
     },
     {
         "id": null,
         "item": "display_subscribe_log",
-        "value": "1",
+        "value": "0",
         "class": "feature",
         "is_public": 1,
         "type": "bool",
-        "default": "1",
+        "default": "0",
         "mark": "显示用户订阅记录"
     },
     {
@@ -1411,12 +1381,182 @@
     },
     {
         "id": null,
+        "item": "enable_forced_replacement",
+        "value": "1",
+        "class": "subscribe",
+        "is_public": 0,
+        "type": "bool",
+        "default": "1",
+        "mark": "用户修改账户登录密码时，是否强制更换订阅地址"
+    },
+    {
+        "id": null,
+        "item": "enable_traditional_sub",
+        "value": "1",
+        "class": "subscribe",
+        "is_public": 1,
+        "type": "bool",
+        "default": "1",
+        "mark": "传统订阅系统开关"
+    },
+    {
+        "id": null,
+        "item": "enable_ss_sub",
+        "value": "1",
+        "class": "subscribe",
+        "is_public": 1,
+        "type": "bool",
+        "default": "1",
+        "mark": "Shadowsocks 订阅开关"
+    },
+    {
+        "id": null,
+        "item": "enable_v2_sub",
+        "value": "1",
+        "class": "subscribe",
+        "is_public": 1,
+        "type": "bool",
+        "default": "1",
+        "mark": "V2Ray 订阅开关"
+    },
+    {
+        "id": null,
+        "item": "enable_trojan_sub",
+        "value": "1",
+        "class": "subscribe",
+        "is_public": 1,
+        "type": "bool",
+        "default": "1",
+        "mark": "Trojan 订阅开关"
+    },
+    {
+        "id": null,
+        "item": "enable_daily_finance_mail",
+        "value": "0",
+        "class": "cron",
+        "is_public": 0,
+        "type": "bool",
+        "default": "0",
+        "mark": "是否启用每日财务报告"
+    },
+    {
+        "id": null,
+        "item": "enable_weekly_finance_mail",
+        "value": "0",
+        "class": "cron",
+        "is_public": 0,
+        "type": "bool",
+        "default": "0",
+        "mark": "是否启用每周财务报告"
+    },
+    {
+        "id": null,
+        "item": "enable_monthly_finance_mail",
+        "value": "0",
+        "class": "cron",
+        "is_public": 0,
+        "type": "bool",
+        "default": "0",
+        "mark": "是否启用每月财务报告"
+    },
+    {
+        "id": null,
+        "item": "enable_detect_gfw",
+        "value": "0",
+        "class": "cron",
+        "is_public": 0,
+        "type": "bool",
+        "default": "0",
+        "mark": "是否启用节点被墙检测"
+    },
+    {
+        "id": null,
+        "item": "enable_detect_ban",
+        "value": "0",
+        "class": "cron",
+        "is_public": 0,
+        "type": "bool",
+        "default": "0",
+        "mark": "是否启用审计封禁"
+    },
+    {
+        "id": null,
+        "item": "enable_detect_inactive_user",
+        "value": "0",
+        "class": "cron",
+        "is_public": 0,
+        "type": "bool",
+        "default": "0",
+        "mark": "是否启用闲置用户检测"
+    },
+    {
+        "id": null,
+        "item": "detect_inactive_user_checkin_days",
+        "value": "90",
+        "class": "cron",
+        "is_public": 0,
+        "type": "int",
+        "default": "90",
+        "mark": "未签到时长(天)"
+    },
+    {
+        "id": null,
+        "item": "detect_inactive_user_login_days",
+        "value": "90",
+        "class": "cron",
+        "is_public": 0,
+        "type": "int",
+        "default": "90",
+        "mark": "未登录时长(天)"
+    },
+    {
+        "id": null,
+        "item": "detect_inactive_user_use_days",
+        "value": "90",
+        "class": "cron",
+        "is_public": 0,
+        "type": "int",
+        "default": "90",
+        "mark": "未使用时长(天)"
+    },
+    {
+        "id": null,
+        "item": "daily_job_hour",
+        "value": "0",
+        "class": "cron",
+        "is_public": 0,
+        "type": "int",
+        "default": "0",
+        "mark": "每日任务执行时间(小时)"
+    },
+    {
+        "id": null,
+        "item": "daily_job_minute",
+        "value": "0",
+        "class": "cron",
+        "is_public": 0,
+        "type": "int",
+        "default": "0",
+        "mark": "每日任务执行时间(分钟)"
+    },
+    {
+        "id": null,
+        "item": "last_daily_job_time",
+        "value": "0",
+        "class": "cron",
+        "is_public": 0,
+        "type": "int",
+        "default": "0",
+        "mark": "上次执行每日任务的时间"
+    },
+    {
+        "id": null,
         "item": "db_version",
-        "value": "20230201",
+        "value": "2023020100",
         "class": "db",
         "is_public": 0,
         "type": "int",
-        "default": "20230201",
+        "default": "2023020100",
         "mark": "当前数据库版本"
     }
 ]

@@ -5,48 +5,56 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Models\Ip;
 use App\Models\LoginIp;
-use App\Utils\QQWry;
+use App\Services\DB;
 use App\Utils\Tools;
+use Exception;
+use GeoIp2\Exception\AddressNotFoundException;
+use MaxMind\Db\Reader\InvalidDatabaseException;
+use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
+use function array_map;
+use function array_slice;
+use function count;
+use function str_replace;
 
 final class IpController extends BaseController
 {
-    public static $login_details =
-    [
-        'field' => [
-            'id' => '事件ID',
-            'userid' => '用户ID',
-            'user_name' => '用户名',
-            'ip' => 'IP',
-            'location' => 'IP归属地',
-            'datetime' => '时间',
-            'type' => '类型',
-        ],
-    ];
+    public static array $login_details =
+        [
+            'field' => [
+                'id' => '事件ID',
+                'userid' => '用户ID',
+                'user_name' => '用户名',
+                'ip' => 'IP',
+                'location' => 'IP归属地',
+                'datetime' => '时间',
+                'type' => '类型',
+            ],
+        ];
 
-    public static $ip_details =
-    [
-        'field' => [
-            'id' => '事件ID',
-            'userid' => '用户ID',
-            'user_name' => '用户名',
-            'nodeid' => '节点ID',
-            'node_name' => '节点名',
-            'ip' => 'IP',
-            'location' => 'IP归属地',
-            'datetime' => '时间',
-        ],
-    ];
+    public static array $ip_details =
+        [
+            'field' => [
+                'id' => '事件ID',
+                'user_id' => '用户ID',
+                'user_name' => '用户名',
+                'node_id' => '节点ID',
+                'node_name' => '节点名',
+                'ip' => 'IP',
+                'location' => 'IP归属地',
+                'first_time' => '首次连接',
+                'last_time' => '最后连接',
+            ],
+        ];
 
     /**
      * 后台登录记录页面
      *
-     * @param array     $args
+     * @throws Exception
      */
-    public function login(ServerRequest $request, Response $response, array $args)
+    public function login(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         return $response->write(
             $this->view()
@@ -58,9 +66,10 @@ final class IpController extends BaseController
     /**
      * 后台登录记录页面 AJAX
      *
-     * @param array     $args
+     * @throws AddressNotFoundException
+     * @throws InvalidDatabaseException
      */
-    public function ajaxLogin(ServerRequest $request, Response $response, array $args)
+    public function ajaxLogin(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $length = $request->getParam('length');
         $page = $request->getParam('start') / $length + 1;
@@ -69,10 +78,9 @@ final class IpController extends BaseController
         $logins = LoginIp::orderBy('id', 'desc')->paginate($length, '*', '', $page);
         $total = LoginIp::count();
 
-        $QQWry = new QQWry();
         foreach ($logins as $login) {
             $login->user_name = $login->userName();
-            $login->location = $login->location($QQWry);
+            $login->location = Tools::getIpLocation($login->ip);
             $login->datetime = Tools::toDateTime((int) $login->datetime);
             $login->type = $login->type();
         }
@@ -88,45 +96,71 @@ final class IpController extends BaseController
     /**
      * 后台在线 IP 页面
      *
-     * @param array     $args
+     * @throws Exception
      */
-    public function alive(ServerRequest $request, Response $response, array $args)
+    public function online(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         return $response->write(
             $this->view()
                 ->assign('details', self::$ip_details)
-                ->fetch('admin/log/alive.tpl')
+                ->fetch('admin/log/online.tpl')
         );
     }
 
     /**
      * 后台在线 IP 页面 AJAX
      *
-     * @param array     $args
+     * @throws AddressNotFoundException
+     * @throws InvalidDatabaseException
      */
-    public function ajaxAlive(ServerRequest $request, Response $response, array $args)
+    public function ajaxOnline(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
-        $length = $request->getParam('length');
-        $page = $request->getParam('start') / $length + 1;
-        $draw = $request->getParam('draw');
+        $data = $request->getParsedBody();
+        $length = (int) ($data['length'] ?? 0);
+        $start = (int) ($data['start'] ?? 0);
+        $draw = $data['draw'] ?? null;
 
-        $alives = Ip::where('datetime', '>=', \time() - 60)->orderBy('id', 'desc')->paginate($length, '*', '', $page);
-        $total = count(Ip::where('datetime', '>=', \time() - 60)->orderBy('id', 'desc')->get());
+        $logs = DB::select('
+            SELECT
+                online_log.id,
+                online_log.user_id,
+                user.user_name,
+                online_log.node_id,
+                node.name AS node_name,
+                online_log.ip,
+                online_log.first_time,
+                online_log.last_time
+            FROM
+                online_log
+                LEFT JOIN user ON user.id = online_log.user_id
+                LEFT JOIN node ON node.id = online_log.node_id
+            WHERE
+                last_time > UNIX_TIMESTAMP() - 90
+        ');
 
-        $QQWry = new QQWry();
-        foreach ($alives as $alive) {
-            $alive->user_name = $alive->userName();
-            $alive->node_name = $alive->nodeName();
-            $alive->ip = Tools::getRealIp($alive->ip);
-            $alive->location = $alive->location($QQWry);
-            $alive->datetime = Tools::toDateTime((int) $alive->datetime);
-        }
+        $count = count($logs);
+        $data = array_map(
+            static function ($val) {
+                return [
+                    'id' => $val->id,
+                    'user_id' => $val->user_id,
+                    'user_name' => $val->user_name,
+                    'node_id' => $val->node_id,
+                    'node_name' => $val->node_name,
+                    'ip' => str_replace('::ffff:', '', $val->ip),
+                    'location' => Tools::getIpLocation($val->ip),
+                    'first_time' => Tools::toDateTime($val->first_time),
+                    'last_time' => Tools::toDateTime($val->last_time),
+                ];
+            },
+            array_slice($logs, $start, $length)
+        );
 
         return $response->withJson([
             'draw' => $draw,
-            'recordsTotal' => $total,
-            'recordsFiltered' => $total,
-            'alives' => $alives,
+            'recordsTotal' => $count,
+            'recordsFiltered' => $count,
+            'onlines' => $data,
         ]);
     }
 }

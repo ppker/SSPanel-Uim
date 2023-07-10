@@ -7,15 +7,22 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\UserCoupon;
 use App\Utils\Tools;
+use Exception;
+use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
+use function in_array;
+use function json_decode;
+use function json_encode;
+use function property_exists;
+use function time;
 
 /*
  *  Coupon Controller
  */
 final class CouponController extends BaseController
 {
-    public static $details = [
+    public static array $details = [
         'field' => [
             'op' => '操作',
             'id' => '优惠码ID',
@@ -23,9 +30,11 @@ final class CouponController extends BaseController
             'type' => '优惠码类型',
             'value' => '优惠码额度',
             'product_id' => '可用商品ID',
-            'use_time' => '每个用户可使用次数',
+            'use_time' => '每个用户可使用次数限制',
+            'total_use_time' => '累计可使用次数限制',
             'new_user' => '仅限新用户使用',
             'disabled' => '已禁用',
+            'use_count' => '累计使用次数',
             'create_time' => '创建时间',
             'expire_time' => '过期时间',
         ],
@@ -59,9 +68,15 @@ final class CouponController extends BaseController
             ],
             [
                 'id' => 'use_time',
-                'info' => '每个用户可使用次数（小于0为不限）',
+                'info' => '每个用户可使用次数限制（小于0为不限）',
                 'type' => 'input',
-                'placeholder' => '',
+                'placeholder' => '-1',
+            ],
+            [
+                'id' => 'total_use_time',
+                'info' => '累计可使用次数限制（小于0为不限）',
+                'type' => 'input',
+                'placeholder' => '-1',
             ],
             [
                 'id' => 'new_user',
@@ -88,9 +103,9 @@ final class CouponController extends BaseController
     /**
      * 后台优惠码页面
      *
-     * @param array     $args
+     * @throws Exception
      */
-    public function index(ServerRequest $request, Response $response, array $args)
+    public function index(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         return $response->write(
             $this->view()
@@ -101,21 +116,20 @@ final class CouponController extends BaseController
 
     /**
      * 添加优惠码
-     *
-     * @param array     $args
      */
-    public function add(ServerRequest $request, Response $response, array $args)
+    public function add(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $code = $request->getParam('code');
         $type = $request->getParam('type');
         $value = $request->getParam('value');
         $product_id = $request->getParam('product_id');
         $use_time = $request->getParam('use_time');
+        $total_use_time = $request->getParam('total_use_time');
         $new_user = $request->getParam('new_user');
         $generate_method = $request->getParam('generate_method');
         $expire_time = $request->getParam('expire_time');
 
-        if ($code === '' && \in_array($generate_method, ['char', 'char_ramdom'])) {
+        if ($code === '' && in_array($generate_method, ['char', 'char_ramdom'])) {
             return $response->withJson([
                 'ret' => 0,
                 'msg' => '优惠码不能为空',
@@ -136,24 +150,22 @@ final class CouponController extends BaseController
             ]);
         }
 
-        if ($expire_time !== '' && $expire_time < \time()) {
+        if ($expire_time !== '' && $expire_time < time()) {
             return $response->withJson([
                 'ret' => 0,
                 'msg' => '到期时间不能小于当前时间',
             ]);
         }
 
-        if ($generate_method === 'char') {
-            if (UserCoupon::where('code', $code)->count() !== 0) {
-                return $response->withJson([
-                    'ret' => 0,
-                    'msg' => '优惠码已存在',
-                ]);
-            }
+        if ($generate_method === 'char' && UserCoupon::where('code', $code)->count() !== 0) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => '优惠码已存在',
+            ]);
         }
 
         if ($generate_method === 'char_random') {
-            $code .= Tools::genRandomChar(8);
+            $code .= Tools::genRandomChar();
 
             if (UserCoupon::where('code', $code)->count() !== 0) {
                 return $response->withJson([
@@ -164,7 +176,7 @@ final class CouponController extends BaseController
         }
 
         if ($generate_method === 'random') {
-            $code = Tools::genRandomChar(8);
+            $code = Tools::genRandomChar();
 
             if (UserCoupon::where('code', $code)->count() !== 0) {
                 return $response->withJson([
@@ -182,15 +194,16 @@ final class CouponController extends BaseController
         $limit = [
             'product_id' => $product_id,
             'use_time' => $use_time,
+            'total_use_time' => $total_use_time,
             'new_user' => $new_user,
             'disabled' => 0,
         ];
 
         $coupon = new UserCoupon();
         $coupon->code = $code;
-        $coupon->content = \json_encode($content);
-        $coupon->limit = \json_encode($limit);
-        $coupon->create_time = \time();
+        $coupon->content = json_encode($content);
+        $coupon->limit = json_encode($limit);
+        $coupon->create_time = time();
         if ($expire_time !== '') {
             $coupon->expire_time = $expire_time;
         } else {
@@ -204,7 +217,7 @@ final class CouponController extends BaseController
         ]);
     }
 
-    public function delete(ServerRequest $request, Response $response, array $args)
+    public function delete(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $coupon_id = $args['id'];
         UserCoupon::find($coupon_id)->delete();
@@ -214,13 +227,13 @@ final class CouponController extends BaseController
         ]);
     }
 
-    public function disable(ServerRequest $request, Response $response, array $args)
+    public function disable(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $coupon_id = $args['id'];
         $coupon = UserCoupon::find($coupon_id)->first();
-        $limit = \json_decode($coupon->limit);
+        $limit = json_decode($coupon->limit);
         $limit->disabled = 1;
-        $coupon->limit = \json_encode($limit);
+        $coupon->limit = json_encode($limit);
         $coupon->save();
         return $response->withJson([
             'ret' => 1,
@@ -230,15 +243,13 @@ final class CouponController extends BaseController
 
     /**
      * 后台商品优惠码页面 AJAX
-     *
-     * @param array     $args
      */
-    public function ajax(ServerRequest $request, Response $response, array $args)
+    public function ajax(ServerRequest $request, Response $response, array $args): Response|ResponseInterface
     {
         $coupons = UserCoupon::orderBy('id', 'desc')->get();
         foreach ($coupons as $coupon) {
-            $content = \json_decode($coupon->content);
-            $limit = \json_decode($coupon->limit);
+            $content = json_decode($coupon->content);
+            $limit = json_decode($coupon->limit);
             if ($limit->disabled === 1) {
                 $coupon->op = '<button type="button" class="btn btn-red" id="delete-coupon-' . $coupon->id . '" 
                 onclick="deleteCoupon(' . $coupon->id . ')">删除</button>';
@@ -248,25 +259,36 @@ final class CouponController extends BaseController
                 <button type="button" class="btn btn-orange" id="disable-coupon-' . $coupon->id . '" 
                 onclick="disableCoupon(' . $coupon->id . ')">禁用</button>';
             }
-            $coupon->type = Tools::getCouponType($content);
+            $coupon->type = $coupon->type();
             $coupon->value = $content->value;
             $coupon->product_id = $limit->product_id;
+
             if ((int) $limit->use_time < 0) {
                 $coupon->use_time = '不限次数';
             } else {
                 $coupon->use_time = $limit->use_time;
             }
+
+            if (! property_exists($limit, 'total_use_time') || (int) $limit->total_use_time < 0) {
+                $coupon->total_use_time = '不限次数';
+            } else {
+                $coupon->total_use_time = $limit->total_use_time;
+            }
+
             if ($limit->new_user === 1) {
                 $coupon->new_user = '是';
             } else {
                 $coupon->new_user = '否';
             }
+
             if ($limit->disabled === 1) {
                 $coupon->disabled = '是';
             } else {
                 $coupon->disabled = '否';
             }
+
             $coupon->create_time = Tools::toDateTime((int) $coupon->create_time);
+
             if ($coupon->expire_time === 0) {
                 $coupon->expire_time = '永久有效';
             } else {

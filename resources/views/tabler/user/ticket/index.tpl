@@ -1,4 +1,4 @@
-{include file='user/tabler_header.tpl'}
+{include file='user/header.tpl'}
 
 <div class="page-wrapper">
     <div class="container-xl">
@@ -12,9 +12,9 @@
                         <span class="home-subtitle">你可以在这里联系管理员获取支持</span>
                     </div>
                 </div>
-                <div class="col-auto ms-auto d-print-none">
+                <div class="col-auto">
                     <div class="btn-list">
-                        <button href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
+                        <button href="#" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#create-ticket">
                             <i class="icon ti ti-plus"></i>
                             创建工单
@@ -48,7 +48,7 @@
                                             <h3 class="card-title" style="font-size: 20px;">
                                                 #{$ticket->id}
                                             </h3>
-                                            <p class="text-muted text-truncate" style="height: 100px;">
+                                            <p class="text-secondary text-truncate" style="height: 100px;">
                                                 {$ticket->title}
                                             </p>
                                         </div>
@@ -124,7 +124,7 @@
                     type: $('#ticket-type').val(),
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
+                    if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
                     } else {
@@ -134,10 +134,6 @@
                 }
             })
         });
-
-        $("#success-confirm").click(function() {
-            location.reload();
-        });
     </script>
 
-{include file='user/tabler_footer.tpl'}
+{include file='user/footer.tpl'}

@@ -1,7 +1,7 @@
-{include file='admin/tabler_header.tpl'}
+{include file='admin/header.tpl'}
 
-<script src="//cdn.jsdelivr.net/npm/jsoneditor@9.9.2/dist/jsoneditor.min.js"></script>
-<link href="//cdn.jsdelivr.net/npm/jsoneditor@9.9.2/dist/jsoneditor.min.css" rel="stylesheet" type="text/css">
+<script src="//cdn.jsdelivr.net/npm/jsoneditor@latest/dist/jsoneditor.min.js"></script>
+<link href="//cdn.jsdelivr.net/npm/jsoneditor@latest/dist/jsoneditor.min.css" rel="stylesheet" type="text/css">
 
 <div class="page-wrapper">
     <div class="container-xl">
@@ -36,15 +36,15 @@
                         </div>
                         <div class="card-body">
                             <div class="form-group mb-3 row">
-                                <label class="form-label col-3 col-form-label">名称</label>
+                                <label class="form-label col-3 col-form-label required">名称</label>
                                 <div class="col">
                                     <input id="name" type="text" class="form-control" value="">
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
-                                <label class="form-label col-3 col-form-label">连接地址</label>
+                                <label class="form-label col-3 col-form-label required">连接地址</label>
                                 <div class="col">
-                                    <input id="server" type="text" class="form-control" value=""></input>
+                                    <input id="server" type="text" class="form-control" value="">
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
@@ -54,7 +54,7 @@
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
-                                <label class="form-label col-3 col-form-label">流量倍率</label>
+                                <label class="form-label col-3 col-form-label required">流量倍率</label>
                                 <div class="col">
                                     <input id="traffic_rate" type="text" class="form-control"
                                         value="">
@@ -64,15 +64,15 @@
                                 <label class="form-label col-3 col-form-label">接入类型</label>
                                 <div class="col">
                                     <select id="sort" class="col form-select">
-                                        <option value="11">V2Ray</option>
                                         <option value="14">Trojan</option>
+                                        <option value="11">V2Ray</option>
                                         <option value="0">Shadowsocks</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label">自定义配置</label>
-                                <dev id="custom_config"></dev>
+                                <div id="custom_config"></div>
                                 <label class="form-label col-form-label">
                                     请参考 <a href="//wiki.sspanel.org/#/custom-config" target="_blank">wiki.sspanel.org/#/custom-config</a> 修改节点自定义配置
                                 </label>
@@ -108,13 +108,13 @@
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
-                                <label class="form-label col-3 col-form-label">等级</label>
+                                <label class="form-label col-3 col-form-label required">等级</label>
                                 <div class="col">
                                     <input id="node_class" type="text" class="form-control" value="">
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
-                                <label class="form-label col-3 col-form-label">组别</label>
+                                <label class="form-label col-3 col-form-label required">组别</label>
                                 <div class="col">
                                     <input id="node_group" type="text" class="form-control" value="">
                                 </div>
@@ -123,21 +123,21 @@
                                 <span>流量设置</span>
                             </div>
                             <div class="form-group mb-3 row">
-                                <label class="form-label col-3 col-form-label">可用流量 (GB)</label>
+                                <label class="form-label col-3 col-form-label required">可用流量 (GB)</label>
                                 <div class="col">
                                     <input id="node_bandwidth_limit" type="text" class="form-control"
                                         value="">
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
-                                <label class="form-label col-3 col-form-label">流量重置日</label>
+                                <label class="form-label col-3 col-form-label required">流量重置日</label>
                                 <div class="col">
                                     <input id="bandwidthlimit_resetday" type="text" class="form-control"
                                         value="">
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
-                                <label class="form-label col-3 col-form-label">速率限制 (Mbps)</label>
+                                <label class="form-label col-3 col-form-label required">速率限制 (Mbps)</label>
                                 <div class="col">
                                     <input id="node_speedlimit" type="text" class="form-control"
                                         value="">
@@ -171,7 +171,7 @@
                 custom_config: JSON.stringify(editor.get()),
             },
             success: function(data) {
-                if (data.ret == 1) {
+                if (data.ret === 1) {
                     $('#success-message').text(data.msg);
                     $('#success-dialog').modal('show');
                     window.setTimeout("location.href=top.document.referrer", {$config['jump_delay']});
@@ -184,4 +184,4 @@
     });
 </script>
 
-{include file='admin/tabler_footer.tpl'}
+{include file='admin/footer.tpl'}

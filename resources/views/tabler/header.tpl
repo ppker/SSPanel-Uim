@@ -1,24 +1,17 @@
-<!DOCTYPE html>
-<html lang="zh-cn">
-<head>
-    <meta charset="UTF-8">
-    <meta content="IE=edge" http-equiv="X-UA-Compatible">
-    <meta content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width" name="viewport">
-    <meta name="theme-color" content="#4285f4">
-    <title>{$config['appName']}</title>
-    <!-- css -->
-    <link href="/theme/tabler/css/base.min.css" rel="stylesheet">
-    <link href="/theme/tabler/css/project.min.css" rel="stylesheet">
-    <link href="/theme/tabler/css/auth.min.css" rel="stylesheet">
-    <link href="//cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css" rel="stylesheet">
-    <style>
-        .divcss5 {
-            position: fixed;
-            bottom: 0;
-        }
-    </style>
-    <!-- js -->
-    <script src="/assets/js/fuck.min.js"></script>
-</head>
+<!doctype html>
+<html lang="zh">
 
-<body class="page-brand">
+<head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>{$config['appName']}</title>
+    <!-- CSS files -->
+    <link href="//cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet" />
+    <link href="//cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet" />
+    <!-- JS files -->
+    <script src="/assets/js/fuck.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+</head>

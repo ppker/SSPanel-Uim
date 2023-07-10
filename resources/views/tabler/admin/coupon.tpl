@@ -1,4 +1,4 @@
-{include file='admin/tabler_header.tpl'}
+{include file='admin/header.tpl'}
 
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="//cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -18,16 +18,12 @@
                         </span>
                     </div>
                 </div>
-                <div class="col-auto ms-auto d-print-none">
+                <div class="col-auto">
                     <div class="btn-list">
-                        <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
+                        <a href="#" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#create-dialog">
                             <i class="icon ti ti-plus"></i>
                             创建
-                        </a>
-                        <a href="#" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal"
-                            data-bs-target="#create-dialog">
-                            <i class="icon ti ti-plus"></i>
                         </a>
                     </div>
                 </div>
@@ -65,7 +61,7 @@
                 </div>
                 <div class="modal-body">
                     {foreach $details['create_dialog'] as $detail}
-                        {if $detail['type'] == 'input'}
+                        {if $detail['type'] === 'input'}
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label">{$detail['info']}</label>
                                 <div class="col">
@@ -74,14 +70,14 @@
                                 </div>
                             </div>
                         {/if}
-                        {if $detail['type'] == 'textarea'}
+                        {if $detail['type'] === 'textarea'}
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label">{$detail['info']}</label>
                                 <textarea id="{$detail['id']}" class="col form-control" rows="{$detail['rows']}"
                                     placeholder="{$detail['placeholder']}"></textarea>
                             </div>
                         {/if}
-                        {if $detail['type'] == 'select'}
+                        {if $detail['type'] === 'select'}
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label">{$detail['info']}</label>
                                 <div class="col">
@@ -185,9 +181,9 @@
                     expire_time: $('#expire_time').val(),
                 },
                 success: function(data) {
-                    if (data.ret == 1) {
-                        $('#success-message').text(data.msg);
-                        $('#success-dialog').modal('show');
+                    if (data.ret === 1) {
+                        $('#success-noreload-message').text(data.msg);
+                        $('#success-noreload-dialog').modal('show');
                         reloadTableAjax();
                     } else {
                         $('#fail-message').text(data.msg);
@@ -195,20 +191,20 @@
                     }
                 }
             })
-        };
+        }
 
         function deleteCoupon(coupon_id) {
             $('#notice-message').text('确定删除此优惠码？');
             $('#notice-dialog').modal('show');
-            $('#notice-confirm').on('click', function() {
+            $('#notice-confirm').off('click').on('click', function() {
                 $.ajax({
                     url: "/admin/coupon/" + coupon_id,
                     type: 'DELETE',
                     dataType: "json",
                     success: function(data) {
-                        if (data.ret == 1) {
-                            $('#success-message').text(data.msg);
-                            $('#success-dialog').modal('show');
+                        if (data.ret === 1) {
+                            $('#success-noreload-message').text(data.msg);
+                            $('#success-noreload-dialog').modal('show');
                             reloadTableAjax();
                         } else {
                             $('#fail-message').text(data.msg);
@@ -217,20 +213,20 @@
                     }
                 })
             });
-        };
+        }
 
         function disableCoupon(coupon_id) {
             $('#notice-message').text('确定禁用此优惠码？');
             $('#notice-dialog').modal('show');
-            $('#notice-confirm').on('click', function() {
+            $('#notice-confirm').off('click').on('click', function() {
                 $.ajax({
                     url: "/admin/coupon/" + coupon_id + "/disable",
                     type: 'POST',
                     dataType: "json",
                     success: function(data) {
-                        if (data.ret == 1) {
-                            $('#success-message').text(data.msg);
-                            $('#success-dialog').modal('show');
+                        if (data.ret === 1) {
+                            $('#success-noreload-dialog').text(data.msg);
+                            $('#success-noreload-message').modal('show');
                             reloadTableAjax();
                         } else {
                             $('#fail-message').text(data.msg);
@@ -239,7 +235,7 @@
                     }
                 })
             });
-        };
+        }
 
         function reloadTableAjax() {
             table.ajax.reload(null, false);
@@ -248,4 +244,4 @@
         loadTable();
     </script>
 
-{include file='admin/tabler_footer.tpl'}
+{include file='admin/footer.tpl'}

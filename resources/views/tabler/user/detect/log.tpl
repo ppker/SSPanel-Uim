@@ -1,4 +1,4 @@
-{include file='user/tabler_header.tpl'}
+{include file='user/header.tpl'}
 
 <div class="page-wrapper">
     <div class="container-xl">
@@ -24,7 +24,7 @@
                             <table class="table table-vcenter card-table">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
+                                        <th>事件ID</th>
                                         <th>节点ID</th>
                                         <th>节点名称</th>
                                         <th>规则ID</th>
@@ -37,25 +37,17 @@
                                 </thead>
                                 <tbody>
                                 {foreach $logs as $log}
-                                    {assign var="rule" value=$log->rule()}
-                                    {if $rule != null}
-                                        <tr>
-                                            <td>#{$log->id}</td>
-                                            <td>{$log->node_id}</td>
-                                            <td>{$log->Node()->name}</td>
-                                            <td>{$log->list_id}</td>
-                                            <td>{$rule->name}</td>
-                                            <td>{$rule->text}</td>
-                                            <td>{$rule->regex}</td>
-                                            {if $rule->type == 1}
-                                                <td>数据包明文匹配</td>
-                                            {/if}
-                                            {if $rule->type == 2}
-                                                <td>数据包 hex 匹配</td>
-                                            {/if}
-                                            <td>{date('Y-m-d H:i:s',$log->datetime)}</td>
-                                        </tr>
-                                    {/if}
+                                <tr>
+                                    <td>#{$log->id}</td>
+                                    <td>{$log->node_id}</td>
+                                    <td>{$log->node_name}</td>
+                                    <td>{$log->list_id}</td>
+                                    <td>{$log->rule->name}</td>
+                                    <td>{$log->rule->text}</td>
+                                    <td>{$log->rule->regex}</td>
+                                    <td>{$log->rule->type}</td>
+                                    <td>{$log->datetime}</td>
+                                </tr>
                                 {/foreach}
                                 </tbody>
                             </table>
@@ -66,4 +58,4 @@
         </div>
     </div>
 
-{include file='user/tabler_footer.tpl'}
+{include file='user/footer.tpl'}

@@ -7,11 +7,18 @@ namespace App\Controllers\Admin\Setting;
 use App\Controllers\BaseController;
 use App\Models\Setting;
 use App\Services\Mail;
+use Exception;
+use Throwable;
+use function json_encode;
 
 final class EmailController extends BaseController
 {
-    public static $update_field = [
-        'mail_driver',
+    public static array $update_field = [
+        'email_driver',
+        'email_verify_code_ttl',
+        'email_password_reset_ttl',
+        'email_request_ip_limit',
+        'email_request_address_limit',
         // SMTP
         'smtp_host',
         'smtp_username',
@@ -25,6 +32,7 @@ final class EmailController extends BaseController
         'mailgun_key',
         'mailgun_domain',
         'mailgun_sender',
+        'mailgun_sender_name',
         // Sendgrid
         'sendgrid_key',
         'sendgrid_sender',
@@ -41,6 +49,9 @@ final class EmailController extends BaseController
         'postal_name',
     ];
 
+    /**
+     * @throws Exception
+     */
     public function email($request, $response, $args)
     {
         $settings = [];
@@ -70,15 +81,15 @@ final class EmailController extends BaseController
             $setting = Setting::where('item', '=', $item)->first();
 
             if ($setting->type === 'array') {
-                $setting->value = \json_encode($request->getParam("${item}"));
+                $setting->value = json_encode($request->getParam($item));
             } else {
-                $setting->value = $request->getParam("${item}");
+                $setting->value = $request->getParam($item);
             }
 
             if (! $setting->save()) {
                 return $response->withJson([
                     'ret' => 0,
-                    'msg' => "保存 ${item} 时出错",
+                    'msg' => "保存 {$item} 时出错",
                 ]);
             }
         }
@@ -97,11 +108,9 @@ final class EmailController extends BaseController
             Mail::send(
                 $to,
                 '测试邮件',
-                'auth/test.tpl',
-                [],
-                []
+                'test.tpl'
             );
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return $response->withJson([
                 'ret' => 0,
                 'msg' => '测试邮件发送失败',

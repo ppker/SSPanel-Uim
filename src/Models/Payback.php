@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use function time;
+
 final class Payback extends Model
 {
     protected $connection = 'default';
@@ -11,13 +13,12 @@ final class Payback extends Model
 
     public function user()
     {
-        $user = User::where('id', $this->attributes['userid'])->first();
-        if ($user === null) {
-            Bought::where('id', '=', $this->attributes['id'])->delete();
-            return null;
-        }
+        return User::where('id', $this->userid)->first();
+    }
 
-        return $user;
+    public function refUser()
+    {
+        return User::where('id', $this->ref_by)->first();
     }
 
     public static function rebate($user_id, $order_amount): void
@@ -54,7 +55,7 @@ final class Payback extends Model
                 self::executeRebate($user_id, $gift_user_id, $order_amount);
             }
         } elseif ($invite_rebate_mode === 'limit_time_range') {
-            if (strtotime($user->reg_date) + $configs['rebate_time_range_limit'] * 86400 > \time()) {
+            if (strtotime($user->reg_date) + $configs['rebate_time_range_limit'] * 86400 > time()) {
                 self::executeRebate($user_id, $gift_user_id, $order_amount);
             }
         }
@@ -66,16 +67,25 @@ final class Payback extends Model
         if ($gift_user !== null) {
             $rebate_amount = $order_amount * Setting::obtain('rebate_ratio');
             // 返利
+            $money_before = $gift_user->money;
             $gift_user->money += $adjust_rebate ?? $rebate_amount;
             $gift_user->save();
+            // 余额变动记录
+            (new UserMoneyLog())->addMoneyLog(
+                $gift_user->id,
+                (float) $money_before,
+                (float) $gift_user->money,
+                $adjust_rebate ?? $rebate_amount,
+                '邀请用户 #' . $user_id . ' 返利',
+            );
             // 记录
-            $Payback = new Payback();
-            $Payback->total = $order_amount;
-            $Payback->userid = $user_id;
-            $Payback->ref_by = $gift_user_id;
-            $Payback->ref_get = $adjust_rebate ?? $rebate_amount;
-            $Payback->datetime = \time();
-            $Payback->save();
+            $payback = new Payback();
+            $payback->total = $order_amount;
+            $payback->userid = $user_id;
+            $payback->ref_by = $gift_user_id;
+            $payback->ref_get = $adjust_rebate ?? $rebate_amount;
+            $payback->datetime = time();
+            $payback->save();
         }
     }
 }

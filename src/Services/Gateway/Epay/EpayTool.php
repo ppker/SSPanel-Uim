@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace App\Services\Gateway\Epay;
 
+use function function_exists;
+use function strlen;
+use function time;
+
 final class EpayTool
 {
-    public static function md5Sign($prestr, $key)
+    public static function md5Sign($prestr, $key): string
     {
         $prestr .= $key;
         return md5($prestr);
     }
 
-    public static function md5Verify($prestr, $sign, $key)
+    public static function md5Verify($prestr, $sign, $key): bool
     {
         $prestr .= $key;
         $mysgin = md5($prestr);
@@ -23,7 +27,7 @@ final class EpayTool
         return false;
     }
 
-    public static function createLinkstring($para)
+    public static function createLinkstring($para): string
     {
         $arg = '';
         foreach ($para as $key => $val) {
@@ -36,12 +40,10 @@ final class EpayTool
         return stripslashes($arg);
     }
 
-    public static function createLinkstringUrlencode($para)
+    public static function createLinkstringUrlencode($para): string
     {
         $arg = '';
-//        while (list ($key, $val) = each ($para)) {
-//            $arg.=$key."=".urlencode($val)."&";
-//        }
+
         foreach ($para as $key => $val) {
             $arg .= $key.'='.urlencode($val).'&';
         }
@@ -53,7 +55,7 @@ final class EpayTool
         return stripslashes($arg);
     }
 
-    public static function paraFilter($para)
+    public static function paraFilter($para): array
     {
         $para_filter = [];
         foreach ($para as $key => $val) {
@@ -63,17 +65,12 @@ final class EpayTool
             $para_filter[$key] = $val;
         }
 
-//        while (list ($key, $val) = each ($para)) {
-//            if($key == "sign" || $key == "sign_type" || $val == "")continue;
-//            else  $para_filter[$key] = $para[$key];
-//        }
         return $para_filter;
     }
 
     public static function argSort($para)
     {
         ksort($para);
-        reset($para);
         return $para;
     }
 
@@ -81,12 +78,12 @@ final class EpayTool
     {
         $fp = fopen('/storage/epaylog.txt', 'a');
         flock($fp, LOCK_EX);
-        fwrite($fp, '执行日期：'.date('Y-m-d H:i:s', \time())."\n".$word."\n");
+        fwrite($fp, '执行日期：'.date('Y-m-d H:i:s', time())."\n".$word."\n");
         flock($fp, LOCK_UN);
         fclose($fp);
     }
 
-    public static function getHttpResponsePOST($url, $cacert_url, $para, $input_charset = '')
+    public static function getHttpResponsePOST($url, $cacert_url, $para, $input_charset = ''): bool|string
     {
         if (trim($input_charset) !== '') {
             $url .= '_input_charset='.$input_charset;
@@ -106,7 +103,7 @@ final class EpayTool
         return $responseText;
     }
 
-    public static function getHttpResponseGET($url, $cacert_url)
+    public static function getHttpResponseGET($url, $cacert_url): bool|string
     {
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_HEADER, 0); // 过滤HTTP头

@@ -6,14 +6,17 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\UserSubscribeLog;
-use App\Utils\QQWry;
+use App\Utils\Tools;
+use Exception;
+use GeoIp2\Exception\AddressNotFoundException;
+use MaxMind\Db\Reader\InvalidDatabaseException;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
 
 final class SubscribeLogController extends BaseController
 {
-    public static $details =
+    public static array $details =
     [
         'field' => [
             'id' => '事件ID',
@@ -31,7 +34,7 @@ final class SubscribeLogController extends BaseController
     /**
      * 后台订阅记录页面
      *
-     * @param array     $args
+     * @throws Exception
      */
     public function index(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
@@ -45,9 +48,10 @@ final class SubscribeLogController extends BaseController
     /**
      * 后台订阅记录页面 AJAX
      *
-     * @param array     $args
+     * @throws AddressNotFoundException
+     * @throws InvalidDatabaseException
      */
-    public function ajaxSubscribeLog(ServerRequest $request, Response $response, array $args): ResponseInterface
+    public function ajax(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
         $length = $request->getParam('length');
         $page = $request->getParam('start') / $length + 1;
@@ -56,9 +60,8 @@ final class SubscribeLogController extends BaseController
         $subscribes = UserSubscribeLog::orderBy('id', 'desc')->paginate($length, '*', '', $page);
         $total = UserSubscribeLog::count();
 
-        $QQWry = new QQWry();
         foreach ($subscribes as $subscribe) {
-            $subscribe->location = $subscribe->location($QQWry);
+            $subscribe->location = Tools::getIpLocation($subscribe->request_ip);
         }
 
         return $response->withJson([

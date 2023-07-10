@@ -1,4 +1,4 @@
-{include file='admin/tabler_header.tpl'}
+{include file='admin/header.tpl'}
 
 <div class="page-wrapper">
     <div class="container-xl">
@@ -102,15 +102,15 @@
         function deleteAnn(ann_id) {
             $('#notice-message').text('确定删除此公告？');
             $('#notice-dialog').modal('show');
-            $('#notice-confirm').on('click', function() {
+            $('#notice-confirm').off('click').on('click', function() {
                 $.ajax({
                     url: "/admin/announcement/" + ann_id,
                     type: 'DELETE',
                     dataType: "json",
                     success: function(data) {
-                        if (data.ret == 1) {
-                            $('#success-message').text(data.msg);
-                            $('#success-dialog').modal('show');
+                        if (data.ret === 1) {
+                            $('#success-noreload-message').text(data.msg);
+                            $('#success-noreload-dialog').modal('show');
                             reloadTableAjax();
                         } else {
                             $('#fail-message').text(data.msg);
@@ -119,7 +119,7 @@
                     }
                 })
             });
-        };
+        }
 
         function reloadTableAjax() {
             table.ajax.reload(null, false);
@@ -128,4 +128,4 @@
         loadTable();
     </script>
 
-{include file='admin/tabler_footer.tpl'}
+{include file='admin/footer.tpl'}

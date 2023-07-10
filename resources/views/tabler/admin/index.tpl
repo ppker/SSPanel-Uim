@@ -1,4 +1,4 @@
-{include file='admin/tabler_header.tpl'}
+{include file='admin/header.tpl'}
 
 <div class="page-wrapper">
     <div class="container-xl">
@@ -31,10 +31,10 @@
                                         </div>
                                         <div class="col">
                                             <div class="font-weight-medium">
-                                                ￥{$user->calIncome("today")}
+                                                ￥{$today_income}
                                             </div>
-                                            <div class="text-muted">
-                                                今日流水
+                                            <div class="text-secondary">
+                                                本日流水
                                             </div>
                                         </div>
                                     </div>
@@ -52,9 +52,9 @@
                                         </div>
                                         <div class="col">
                                             <div class="font-weight-medium">
-                                                ￥{$user->calIncome("yesterday")}
+                                                ￥{$yesterday_income}
                                             </div>
-                                            <div class="text-muted">
+                                            <div class="text-secondary">
                                                 昨日流水
                                             </div>
                                         </div>
@@ -73,10 +73,10 @@
                                         </div>
                                         <div class="col">
                                             <div class="font-weight-medium">
-                                                ￥{$user->calIncome("this month")}
+                                                ￥{$this_month_income}
                                             </div>
-                                            <div class="text-muted">
-                                                这月流水
+                                            <div class="text-secondary">
+                                                本月流水
                                             </div>
                                         </div>
                                     </div>
@@ -94,9 +94,9 @@
                                         </div>
                                         <div class="col">
                                             <div class="font-weight-medium">
-                                                ￥{$user->calIncome("total")}
+                                                ￥{$total_income}
                                             </div>
-                                            <div class="text-muted">
+                                            <div class="text-secondary">
                                                 累计流水
                                             </div>
                                         </div>
@@ -129,10 +129,10 @@
                 <div class="col-sm-12 col-md-6">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">用户在线</h3>
+                            <h3 class="card-title">闲置账户</h3>
                         </div>
                         <div class="card-body">
-                            <div id="user-online"></div>
+                            <div id="user-inactive"></div>
                         </div>
                     </div>
                 </div>
@@ -151,7 +151,6 @@
     </div>
 
     <script>
-        // @formatter:off
         document.addEventListener("DOMContentLoaded", function() {
             window.ApexCharts && (new ApexCharts(document.getElementById('check-in'), {
                 chart: {
@@ -193,10 +192,8 @@
                 },
             })).render();
         });
-        // @formatter:on
     </script>
     <script>
-        // @formatter:off
         document.addEventListener("DOMContentLoaded", function() {
             window.ApexCharts && (new ApexCharts(document.getElementById('node-online'), {
                 chart: {
@@ -238,12 +235,10 @@
                 },
             })).render();
         });
-        // @formatter:on
     </script>
     <script>
-        // @formatter:off
         document.addEventListener("DOMContentLoaded", function() {
-            window.ApexCharts && (new ApexCharts(document.getElementById('user-online'), {
+            window.ApexCharts && (new ApexCharts(document.getElementById('user-inactive'), {
                 chart: {
                     type: "donut",
                     fontFamily: 'inherit',
@@ -258,12 +253,12 @@
                 fill: {
                     opacity: 1,
                 },
-                series: [{$sts->getUnusedUser()}, {$sts->getTotalUser()-$sts->getOnlineUser(86400)-$sts->getUnusedUser()}, {$sts->getOnlineUser(86400)}, {$sts->getOnlineUser(3600)}, {$sts->getOnlineUser(60)}],
-                labels: ["从未在线", "一天前在线", "一天内在线", "一小时内在线", "一分钟内在线"],
+                series: [{$sts->getInactiveUser()}, {$sts->getActiveUser()}],
+                labels: ["闲置账户", "活动账户"],
                 grid: {
                     strokeDashArray: 4,
                 },
-                colors: ["#0e72cc", "#6ca30f", "#f59311", "#fa4343", "#16afcc"],
+                colors: ["#f59311", "#6ca30f"],
                 legend: {
                     show: true,
                     position: 'bottom',
@@ -283,10 +278,8 @@
                 },
             })).render();
         });
-        // @formatter:on
     </script>
     <script>
-        // @formatter:off
         document.addEventListener("DOMContentLoaded", function() {
             window.ApexCharts && (new ApexCharts(document.getElementById('traffic-usage'), {
                 chart: {
@@ -327,9 +320,8 @@
                 },
             })).render();
         });
-        // @formatter:on
     </script>
 
     <script src="//cdn.jsdelivr.net/npm/@tabler/core@latest/dist/libs/apexcharts/dist/apexcharts.min.js"></script>
 
-{include file='admin/tabler_footer.tpl'}
+{include file='admin/footer.tpl'}

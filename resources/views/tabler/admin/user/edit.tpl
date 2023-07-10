@@ -1,4 +1,4 @@
-{include file='admin/tabler_header.tpl'}
+{include file='admin/header.tpl'}
 
 <div class="page-wrapper">
     <div class="container-xl">
@@ -12,14 +12,11 @@
                         <span class="home-subtitle">用户编辑</span>
                     </div>
                 </div>
-                <div class="col-auto ms-auto d-print-none">
+                <div class="col-auto">
                     <div class="btn-list">
-                        <a id="save_changes" href="#" class="btn btn-primary d-none d-sm-inline-block">
+                        <a id="save_changes" href="#" class="btn btn-primary">
                             <i class="icon ti ti-device-floppy"></i>
                             保存
-                        </a>
-                        <a id="save_changes" href="#" class="btn btn-primary d-sm-none btn-icon">
-                            <i class="icon ti ti-device-floppy"></i>
                         </a>
                     </div>
                 </div>
@@ -110,7 +107,7 @@
                                 <span class="col-auto">
                                     <label class="form-check form-check-single form-switch">
                                         <input id="is_admin" class="form-check-input" type="checkbox"
-                                            {if $edit_user->is_admin == 1}checked="" {/if}>
+                                            {if $edit_user->is_admin}checked="" {/if}>
                                     </label>
                                 </span>
                             </div>
@@ -119,7 +116,7 @@
                                 <span class="col-auto">
                                     <label class="form-check form-check-single form-switch">
                                         <input id="ga_enable" class="form-check-input" type="checkbox"
-                                            {if $edit_user->ga_enable == 1}checked="" {/if}>
+                                            {if $edit_user->ga_enable}checked="" {/if}>
                                     </label>
                                 </span>
                             </div>
@@ -128,7 +125,7 @@
                                 <span class="col-auto">
                                     <label class="form-check form-check-single form-switch">
                                         <input id="use_new_shop" class="form-check-input" type="checkbox"
-                                            {if $edit_user->use_new_shop == 1}checked="" {/if}>
+                                            {if $edit_user->use_new_shop}checked="" {/if}>
                                     </label>
                                 </span>
                             </div>
@@ -137,7 +134,7 @@
                                 <span class="col-auto">
                                     <label class="form-check form-check-single form-switch">
                                         <input id="is_banned" class="form-check-input" type="checkbox"
-                                            {if $edit_user->is_banned == 1} checked=""{/if}>
+                                            {if $edit_user->is_banned}checked=""{/if}>
                                     </label>
                                 </span>
                             </div>
@@ -165,10 +162,17 @@
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
-                                <label class="form-label col-4 col-form-label">已用流量 (GB)</label>
+                                <label class="form-label col-4 col-form-label">当期用量</label>
                                 <div class="col">
                                     <input id="usedTraffic" type="text" class="form-control"
                                         value="{$edit_user->usedTraffic()}" disabled />
+                                </div>
+                            </div>
+                            <div class="form-group mb-3 row">
+                                <label class="form-label col-4 col-form-label">累计用量</label>
+                                <div class="col">
+                                    <input id="usedTraffic" type="text" class="form-control"
+                                           value="{$edit_user->totalTraffic()}" disabled />
                                 </div>
                             </div>
                             <div class="hr-text">
@@ -211,10 +215,10 @@
                                     </div>
                                 </div>
                                 <div class="form-group mb-3 col-12">
-                                    <label class="form-label col-12 col-form-label">链接设备限制</label>
+                                    <label class="form-label col-12 col-form-label">同時连接 IP 限制</label>
                                     <div class="col">
-                                        <input id="node_connector" type="text" class="form-control"
-                                            value="{$edit_user->node_connector}">
+                                        <input id="node_iplimit" type="text" class="form-control"
+                                            value="{$edit_user->node_iplimit}">
                                     </div>
                                 </div>
                         </div>
@@ -280,12 +284,12 @@
                 {$key}: $('#{$key}').val(),
                 {/foreach}
                 is_admin: $("#is_admin").is(":checked"),
-                is_banned: $("#enable").is(":checked"),
+                is_banned: $("#is_banned").is(":checked"),
                 ga_enable: $("#ga_enable").is(":checked"),
                 use_new_shop: $("#use_new_shop").is(":checked"),
             },
             success: function(data) {
-                if (data.ret == 1) {
+                if (data.ret === 1) {
                     $('#success-message').text(data.msg);
                     $('#success-dialog').modal('show');
                     window.setTimeout("location.href=top.document.referrer", {$config['jump_delay']});
@@ -298,4 +302,4 @@
     });
 </script>
 
-{include file='admin/tabler_footer.tpl'}
+{include file='admin/footer.tpl'}

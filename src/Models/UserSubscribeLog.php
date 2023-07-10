@@ -4,22 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Utils\QQWry;
 use voku\helper\AntiXSS;
 
 final class UserSubscribeLog extends Model
 {
     protected $connection = 'default';
-
     protected $table = 'user_subscribe_log';
-
-    /**
-     * [静态方法] 删除不存在的用户的记录
-     */
-    public static function userIsNull(UserSubscribeLog $UserSubscribeLog): void
-    {
-        self::where('user_id', $UserSubscribeLog->user_id)->delete();
-    }
 
     /**
      * 用户
@@ -27,18 +17,6 @@ final class UserSubscribeLog extends Model
     public function user(): ?User
     {
         return User::find($this->user_id);
-    }
-
-    /**
-     * 获取 IP 位置
-     */
-    public function location(?QQWry $QQWry = null)
-    {
-        if ($QQWry === null) {
-            $QQWry = new QQWry();
-        }
-        $location = $QQWry->getlocation($this->request_ip);
-        return iconv('gbk', 'utf-8//IGNORE', $location['country'] . $location['area']);
     }
 
     /**

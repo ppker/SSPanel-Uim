@@ -16,26 +16,22 @@ final class HelpCommand extends Command
     /**
      * @var string Command Name
      */
-    protected $name = 'help';
+    protected string $name = 'help';
 
     /**
      * @var string Command Description
      */
-    protected $description = '[群组/私聊] 系统中可用的所有命令.';
+    protected string $description = '[群组/私聊] 系统中可用的所有命令.';
 
     public function handle(): void
     {
         $Update = $this->getUpdate();
         $Message = $Update->getMessage();
-        if ($Message->getChat()->getId() < 0) {
-            if (Setting::obtain('telegram_group_quiet') === true) {
-                return;
-            }
+        if ($Message->getChat()->getId() < 0 && Setting::obtain('telegram_group_quiet')) {
+            return;
         }
-        if (! preg_match('/^\/help\s?(@' . $_ENV['telegram_bot'] . ')?.*/i', $Message->getText())) {
-            if (Setting::obtain('help_any_command') === false) {
-                return;
-            }
+        if (! preg_match('/^\/help\s?(@' . $_ENV['telegram_bot'] . ')?.*/i', $Message->getText()) && Setting::obtain('help_any_command') === false) {
+            return;
         }
         $this->replyWithChatAction(['action' => Actions::TYPING]);
         $commands = $this->telegram->getCommands();

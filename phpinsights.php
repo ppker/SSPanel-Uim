@@ -15,6 +15,7 @@ return [
         PHP_CodeSniffer\Standards\Squiz\Sniffs\PHP\GlobalKeywordSniff::class,
         PhpCsFixer\Fixer\Import\OrderedImportsFixer::class,
         PhpCsFixer\Fixer\StringNotation\SingleQuoteFixer::class,
+        SlevomatCodingStandard\Sniffs\Commenting\InlineDocCommentDeclarationSniff::class,
         SlevomatCodingStandard\Sniffs\ControlStructures\DisallowShortTernaryOperatorSniff::class,
         SlevomatCodingStandard\Sniffs\Classes\ForbiddenPublicPropertySniff::class,
         SlevomatCodingStandard\Sniffs\Classes\ModernClassNameReferenceSniff::class,
@@ -28,14 +29,9 @@ return [
         SlevomatCodingStandard\Sniffs\TypeHints\ReturnTypeHintSniff::class,
         SlevomatCodingStandard\Sniffs\TypeHints\ParameterTypeHintSniff::class,
         SlevomatCodingStandard\Sniffs\TypeHints\PropertyTypeHintSniff::class,
+        SlevomatCodingStandard\Sniffs\Variables\UnusedVariableSniff::class,
     ],
-    'config' => [
-        PHP_CodeSniffer\Standards\PSR1\Sniffs\Methods\CamelCapsMethodNameSniff::class => [
-            'exclude' => [
-                'src/Command/Job.php',
-            ],
-        ],
-    ],
+    'config' => [],
 
     'exclude' => [
         'storage',

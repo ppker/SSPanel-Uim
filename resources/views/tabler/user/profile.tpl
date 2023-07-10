@@ -1,4 +1,4 @@
-{include file='user/tabler_header.tpl'}
+{include file='user/header.tpl'}
 
 <div class="page-wrapper">
     <div class="container-xl">  
@@ -54,7 +54,7 @@
                             <div class="d-flex align-items-center">
                                 <div class="subheader">账户累计使用流量</div>
                             </div>
-                            <div class="h1 mb-3">{round($user->transfer_total / 1073741824,2)} GB</div>
+                            <div class="h1 mb-3">{$user->totalTraffic()}</div>
                         </div>
                     </div>
                 </div>
@@ -63,7 +63,7 @@
                 <div class="col-md-6 com-sm-12">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">最近登录记录</h3>
+                            <h3 class="card-title">最近10次成功登录记录</h3>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-vcenter text-nowrap card-table">
@@ -71,17 +71,46 @@
                                     <tr>
                                         <th>IP</th>
                                         <th>时间</th>
-                                        <th>归属</th>
+                                        <th>IP归属地</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {foreach $loginips as $login}
-                                        <tr>
-                                            <td>{$login->ip}</td>
-                                            <td>{date('Y-m-d H:i:s', $login->datetime)}</td>
-                                            <td>{Tools::getIpInfo($login->ip)}</td>
-                                        </tr>
+                                    {foreach $logins as $login}
+                                    <tr>
+                                        <td>{$login->ip}</td>
+                                        <td>{$login->datetime}</td>
+                                        <td>{$login->location}</td>
+                                    </tr>
                                     {/foreach}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 com-sm-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">当前在线IP</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-vcenter text-nowrap card-table">
+                                <thead>
+                                <tr>
+                                    <th>IP</th>
+                                    <th>IP归属地</th>
+                                    <th>节点名称</th>
+                                    <th>最后在线时间</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {foreach $ips as $ip}
+                                    <tr>
+                                        <td>{$ip->ip}</td>
+                                        <td>{$ip->location}</td>
+                                        <td>{$ip->node_name}</td>
+                                        <td>{$ip->last_time}</td>
+                                    </tr>
+                                {/foreach}
                                 </tbody>
                             </table>
                         </div>
@@ -91,4 +120,4 @@
         </div>
     </div>
     
-{include file='user/tabler_footer.tpl'}
+{include file='user/footer.tpl'}

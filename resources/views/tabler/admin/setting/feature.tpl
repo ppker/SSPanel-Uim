@@ -1,4 +1,4 @@
-{include file='admin/tabler_header.tpl'}
+{include file='admin/header.tpl'}
 
 <div class="page-wrapper">
     <div class="container-xl">
@@ -6,10 +6,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">功能设置</span>
+                        <span class="home-title">其他设置</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">设置站点的功能开关与显示</span>
+                        <span class="home-subtitle">设置站点的其他设置</span>
                     </div>
                 </div>
                 <div class="col-auto ms-auto d-print-none">
@@ -43,8 +43,8 @@
                                     <label class="form-label col-3 col-form-label">显示节点流媒体解锁情况</label>
                                     <div class="col">
                                         <select id="display_media" class="col form-select" value="{$settings['display_media']}">
-                                            <option value="0" {if $settings['display_media'] == false}selected{/if}>关闭</option>
-                                            <option value="1" {if $settings['display_media'] == true}selected{/if}>开启</option>
+                                            <option value="0" {if $settings['display_media'] === false}selected{/if}>关闭</option>
+                                            <option value="1" {if $settings['display_media']}selected{/if}>开启</option>
                                         </select>
                                     </div>
                                 </div>
@@ -52,8 +52,8 @@
                                     <label class="form-label col-3 col-form-label">显示用户订阅记录</label>
                                     <div class="col">
                                         <select id="display_subscribe_log" class="col form-select" value="{$settings['display_subscribe_log']}">
-                                            <option value="0" {if $settings['display_subscribe_log'] == false}selected{/if}>关闭</option>
-                                            <option value="1" {if $settings['display_subscribe_log'] == true}selected{/if}>开启</option>
+                                            <option value="0" {if $settings['display_subscribe_log'] === false}selected{/if}>关闭</option>
+                                            <option value="1" {if $settings['display_subscribe_log']}selected{/if}>开启</option>
                                         </select>
                                     </div>
                                 </div>
@@ -61,8 +61,8 @@
                                     <label class="form-label col-3 col-form-label">显示用户审计记录</label>
                                     <div class="col">
                                         <select id="display_detect_log" class="col form-select" value="{$settings['display_detect_log']}">
-                                            <option value="0" {if $settings['display_detect_log'] == false}selected{/if}>关闭</option>
-                                            <option value="1" {if $settings['display_detect_log'] == true}selected{/if}>开启</option>
+                                            <option value="0" {if $settings['display_detect_log'] === false}selected{/if}>关闭</option>
+                                            <option value="1" {if $settings['display_detect_log']}selected{/if}>开启</option>
                                         </select>
                                     </div>
                                 </div>
@@ -87,7 +87,7 @@
                 {/foreach}
             },
             success: function(data) {
-                if (data.ret == 1) {
+                if (data.ret === 1) {
                     $('#success-message').text(data.msg);
                     $('#success-dialog').modal('show');
                 } else {
@@ -99,4 +99,4 @@
     });
 </script>
 
-{include file='admin/tabler_footer.tpl'}
+{include file='admin/footer.tpl'}

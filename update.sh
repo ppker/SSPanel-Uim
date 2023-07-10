@@ -6,36 +6,34 @@ Author: M1Screw
 Github: https://github.com/sspanel-uim/SSPanel-Uim-Dev
 Usage: 
 ./update.sh dev --> Upgrade to the latest development version
-./update.sh release release_version db_version --> Upgrade to the specified release version
+./update.sh release $release_version $db_version --> Upgrade to the release version with the specified database version
 EOF
 
 [ $(id -u) != "0" ] && { echo "Error: You must be root to run this script!"; exit 1; }
 
 do_update_sspanel_dev(){
-    git pull
+    git pull origin dev
     git reset --hard origin/dev
     git fetch --prune --prune-tags
     rm -r storage/framework/smarty/compile/*
-    php composer.phar update
+    php composer.phar install --no-dev
     php composer.phar selfupdate
-    php xcat Migration latest
     php xcat Update
     php xcat Tool importAllSettings
-    wget https://cdn.jsdelivr.net/gh/sspanel-uim/qqwry.dat@latest/qqwry.dat -O storage/qqwry.dat 
+    php xcat Migration latest
 }
 
 do_update_sspanel_release(){
     tag=$1
     db_version=$2
-    git pull
+    git pull --tags
     git reset --hard $tag
     rm -r storage/framework/smarty/compile/*
-    php composer.phar update
+    php composer.phar install --no-dev
     php composer.phar selfupdate
-    php xcat Migration $db_version
     php xcat Update
     php xcat Tool importAllSettings
-    wget https://cdn.jsdelivr.net/gh/sspanel-uim/qqwry.dat@latest/qqwry.dat -O storage/qqwry.dat 
+    php xcat Migration $db_version
 }
 
 if [[ $1 == "dev" ]]; then

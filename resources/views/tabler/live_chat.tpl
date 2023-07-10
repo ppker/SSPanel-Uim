@@ -1,4 +1,4 @@
-{if $public_setting['live_chat'] == 'tawk'}
+{if $public_setting['live_chat'] === 'tawk'}
 <script type="text/javascript">
     var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
     (function(){
@@ -6,14 +6,13 @@
         var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
         s1.async=true;
         s1.src='https://embed.tawk.to/' + id + '/default';
-        s1.charset='UTF-8';
         s1.setAttribute('crossorigin','*');
         s0.parentNode.insertBefore(s1,s0);
     })();
 </script>
 {/if}
 
-{if $public_setting['live_chat'] == 'crisp'}
+{if $public_setting['live_chat'] === 'crisp'}
 <script type="text/javascript"> window.$crisp = [];
     window.CRISP_WEBSITE_ID = "{$public_setting["crisp_id"]}";
     (function () {
@@ -31,7 +30,6 @@
                   ["user_id","{$user->id}"],
                   ["user_class","{$user->class}"],
                   ["reg_email","{$user->email}"],
-                  ["last_use_time","{$user->lastSsTime()}"],
                   ["expire_in","{$user->expire_in}"],
                   ["class_expire_time","{$user->class_expire}"],
                   ["available_traffic","{$user->unusedTraffic()}"],
@@ -41,15 +39,14 @@
 </script>
 {/if}
 
-{if $public_setting['live_chat'] == 'livechat'}
+{if $public_setting['live_chat'] === 'livechat'}
 <script>
 window.__lc = window.__lc || { };
-window.__lc.license = "{$public_setting['livechat_id']}";;
+window.__lc.license = "{$public_setting['livechat_id']}";
 window.__lc.params = [
     { name: '用户编号', value: '{$user->id}' },
     { name: '用户类别', value: '{$user->class}' },
     { name: '注册邮箱', value: '{$user->email}' },
-    { name: '上次使用', value: '{$user->lastSsTime()}' },
     { name: '到期时间', value: '{$user->expire_in}' },
     { name: '等级时间', value: '{$user->class_expire}' },
     { name: '剩余流量', value: '{$user->unusedTraffic()}' },
@@ -93,7 +90,7 @@ window.__lc.params = [
 </script>
 {/if}
 
-{if $public_setting['live_chat'] == 'mylivechat'}
+{if $public_setting['live_chat'] === 'mylivechat'}
 <script type="text/javascript">
     (() => {
         var hccid = "{$public_setting['mylivechat_id']}";

@@ -6,22 +6,25 @@ namespace App\Controllers\Admin\Setting;
 
 use App\Controllers\BaseController;
 use App\Models\Setting;
+use Exception;
+use function json_encode;
 
 final class SupportController extends BaseController
 {
-    public static $update_field = [
+    public static array $update_field = [
         'live_chat',
         'tawk_id',
         'crisp_id',
         'livechat_id',
         'mylivechat_id',
-        // Admin Contact
-        'enable_admin_contact',
-        'admin_contact1',
-        'admin_contact2',
-        'admin_contact3',
+        // Ticket
+        'enable_ticket',
+        'mail_ticket',
     ];
 
+    /**
+     * @throws Exception
+     */
     public function support($request, $response, $args)
     {
         $settings = [];
@@ -51,15 +54,15 @@ final class SupportController extends BaseController
             $setting = Setting::where('item', '=', $item)->first();
 
             if ($setting->type === 'array') {
-                $setting->value = \json_encode($request->getParam("${item}"));
+                $setting->value = json_encode($request->getParam($item));
             } else {
-                $setting->value = $request->getParam("${item}");
+                $setting->value = $request->getParam($item);
             }
 
             if (! $setting->save()) {
                 return $response->withJson([
                     'ret' => 0,
-                    'msg' => "保存 ${item} 时出错",
+                    'msg' => "保存 {$item} 时出错",
                 ]);
             }
         }
